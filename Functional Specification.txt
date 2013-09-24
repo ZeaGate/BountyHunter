@@ -1,0 +1,67 @@
+Functional Specification
+0. Modes:
+- AutomationDisabled
+- AnomalyFarming
+- SiteLooting (in ver.2)
+1. Available actions
+1.1. No EVE Client running
+- Start EVE Launcher
+- Enter password
+- Press Play
+- Select Character
+(in ver.2 - select character if it was not previously selected one)
+1.2. On Station
+- Change ship (ver.2)
+- Undock
+1.3. In Space (acquiring new task)
+- Open scaner
+- Select Anomaly
+- Warp to Anomaly at given distance
+- Close Anomaly Info Window
+- Save info about anomaly, to make sure to not consider it again
+- Close scaner
+- Switch to overview tab "Players Only"
+- Check if anomaly is already taken (other player ship in overview)
+	  if anomaly is taken
+- Warp off (start bookmark?) and start from the beginning of 1.3
+	  if anomaly is empty - proceed to step 1.4
+1.4. In Space (anomaly farming)
+- Switch to overview tab "NPC Only"
+- Deploy sentries (with auto aggro they don't need orders most of the time)
+1.5. In Space (anomaly farming and manual targeting)
+- locate small NPC ships in Overview and start targeting each of it
+- execute command "Attack by drones" until all small targets are gone
+- repeat "targeting" step to once per 15 seconds
+- once all small targets are gone - procced to 1.4. main loop (i.e. do nothing special, just checks)
+1.6. Evacuation
+- Scoop sentries (if they out)
+- if Red in System flag is up
+- Warp to safe pos and goto 1.7. (Ambush)
+- Else goto 1.3.
+1.7. Ambush (at safe pos ;) )
+- once Red in System flag is dropped goto step 1.3.
+
+2. Periodically checks
+2.1. To check the Local for Neut and Reds
+Note: overview should be set accordingly. All possibly dangerous entities must be marked with red non-blinking colortag.
+In ver.2 we will distinguish Neuts and Reds and act accordingly
+If local check fails, i.e. Red in system:
+- sound signal
+- proceed to Evacuation step (1.6.)
+Option: to check neutral by kos cheker
+- if there are too many players in local - goto ambush step 
+
+2.2. To check overview for other player ship
+If check fails, i.e. other player in "our" anomaly - consider action. At least sound signal.
+2.3. To check NPC overview tab for small NPC ships.
+If check fails, i.e. small NPC are present: proceed to step 1.5.
+If no NPC found - easy mode evacuation (just scoop sentries and goto 1.3.)
+2.4. To check sentries status periodically. 
+If sentry is getting damage the easiest way is to re-Deploy. 
+Check if in this case sentries can auto aggro.
+Make sure to not react on already damaged sentries.
+
+3. Statuses, Flags
+- Sentries are deployed
+- Red in system
+- Local is overflowed
