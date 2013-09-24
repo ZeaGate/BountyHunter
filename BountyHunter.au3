@@ -2,6 +2,7 @@
 
 #include-once
 #include <Tesseract.au3>
+#include <ImageSearch.au3>
 
 
 #Region Config
@@ -23,6 +24,17 @@
 
     Global $bExitFlag = False;
 #EndRegion
+
+WinActivate ( "EVE" )
+
+While 1
+    
+    Local $x = 0, $y = 0
+	Local $search = _ImageSearchArea("Images\ColorTag_NoStand.bmp", 1, $iLocalBeginX-30, $iLocalBeginY, $iLocalEndX, $iLocalEndY, $x, $y, 0)
+	If $search = 1 Then
+	   MouseMove($x, $y, 100);
+    EndIf
+WEnd
 
 ; Main Loop
 While $bExitFlag = False
@@ -52,6 +64,7 @@ While $bExitFlag = False
     
 WEnd
 
-
+; MouseMove
+; Random
 
 
