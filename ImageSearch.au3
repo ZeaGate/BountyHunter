@@ -7,6 +7,11 @@
 ;                 Require that the ImageSearchDLL.dll be loadable
 ;
 ; ------------------------------------------------------------------------------
+Global Const $ImageSearch_ResultPosition_Center = 1
+Global Const $ImageSearch_ResultPosition_TopLeft = 0
+Global Const $ImageSearch_Tolerance_Zero = 0
+Global Const $ImageSearch_Success = 1;
+Global Const $ImageSearch_Failure = 0;
 
 ;===============================================================================
 ;

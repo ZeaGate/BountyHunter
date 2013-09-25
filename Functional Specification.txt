@@ -15,12 +15,16 @@ Functional Specification
 - Undock
 1.3. In Space (acquiring new task)
 - Turn on hardeners and LARII
-- Open scaner
-- Select Anomaly
-- Warp to Anomaly at given distance
-- Close Anomaly Info Window
-- Save info about anomaly, to make sure to not consider it again
-- Close scaner
+  1.3.2 Find new anomaly and warp to it
+  - Open scaner
+  - Select Anomaly
+  - Warp to Anomaly at 70km
+  - Close Anomaly Info Window (by Pressing Enter)
+  - Save info about anomaly, to make sure to not consider it again 
+    OR
+    Ignore result, so anomaly would not be considered again
+  - Close scaner
+
 - Switch to overview tab "Players Only"
 - Check if anomaly is already taken (other player ship in overview)
 	  if anomaly is taken
@@ -66,3 +70,20 @@ Make sure to not react on already damaged sentries.
 - Sentries are deployed
 - Red in system
 - Local is overflowed
+
+
+Design
+
+1. Main loop will:
+- poll GUI events
+- run checks (based on timer)
+
+2. Hotkeys
+Alt+E 	People and Places
+Alt+D	Scanner
+Alt+Space	Set Overview Focus
+Alt+U	Exit Station
+Ctrl+Shift+A	Drone Engage
+Ctrl+Shift+S	Drone Return and Orbit
+Ctrl+Shift+D	Drone Return to Drone Bay
+
