@@ -1,6 +1,6 @@
+#include-once
 ; Tesseract related code is based on "Tesseract UDF Library for AutoIt3" from seangriffin
 
-#include-once
 #include <File.au3>
 #include <GDIPlus.au3>
 #include <ScreenCapture.au3>

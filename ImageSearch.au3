@@ -139,3 +139,13 @@ Func _WaitForImagesSearch($findImage,$waitSecs,$resultPosition,ByRef $x, ByRef $
 	return 0
 EndFunc
 
+Func _ImagesSearch($findImage,$resultPosition,ByRef $x, ByRef $y,$tolerance)
+   For $i = 1 to $findImage[0]
+	  $result=_ImageSearch($findImage[$i],$resultPosition,$x, $y,$tolerance)
+	  ;MsgBox(0, $findImage[$i], $result)
+	  If $result > 0 Then
+		 Return $i
+	  EndIf
+   Next	
+   Return 0
+EndFunc

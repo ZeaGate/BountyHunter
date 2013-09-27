@@ -87,3 +87,9 @@ Ctrl+Shift+A	Drone Engage
 Ctrl+Shift+S	Drone Return and Orbit
 Ctrl+Shift+D	Drone Return to Drone Bay
 
+3. Actions
+
+
+Plan:
+1. Implement first line actions
+2. Implement State Machine

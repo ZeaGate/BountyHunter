@@ -1,11 +1,21 @@
+;------------------------------------------------------------------------------
+;
+; Bounty Hunter Project
+; Main file
+;
+;------------------------------------------------------------------------------
 
-
-#include-once
 #include <Tesseract.au3>
 #include <ImageSearch.au3>
 #include <GUIConstantsEx.au3>
-#include <PersonalConfiguration.au3>
 #include <Array.au3>
+
+; project related includes
+#include <PersonalConfiguration.au3>
+#include <Utilities.au3>
+#include <Actions.au3>
+#include <Checks.au3>
+#include <Globals.au3>
 
 
 #Region Config
@@ -32,9 +42,11 @@
 	Global $strPassword = ""
 #EndRegion
 
+;------------------------------------------------------------------------------
 ; GUI
+;------------------------------------------------------------------------------
 GUICreate("Bounty Hunter", 300, 400)
-$btnStart = GUICtrlCreateButton("Start EVE Online Client", 5, 5, 290, 20)
+$btnStartBountyHunter = GUICtrlCreateButton("StartBountyHunter", 5, 5, 290, 20)
 $btnDockToStation = GUICtrlCreateButton("Dock to the Station", 5, 35, 290, 20)
 $btnWarpToSafePos = GUICtrlCreateButton("Warp to the Safe POS", 5, 65, 290, 20)
 $btnUndockFromStation = GUICtrlCreateButton("Undock from the station", 5, 95, 290, 20)
@@ -44,379 +56,193 @@ $btnExpandDroneWindow = GUICtrlCreateButton("Expand Drone Window", 5, 185, 290, 
 $btnLaunchSentryEm = GUICtrlCreateButton("Launch Sentry EM", 5, 215, 290, 20)
 $btnDronesEngage = GUICtrlCreateButton("Drones Engage", 5, 245, 290, 20)
 $btnScoopDrones = GUICtrlCreateButton("Scoop Drones", 5, 275, 290, 20)
+$btnStart = GUICtrlCreateButton("Start EVE Online Client", 5, 305, 290, 20)
 
-; GUI MESSAGE LOOP
+
+;------------------------------------------------------------------------------
+; Main Loop
+; 	Generates Event based on Periodical Checks
+;	Generates Event based on users imput via GUI
+;	Forwards Event to BountyHunterStateMachine()
+;------------------------------------------------------------------------------
+Global $nextEvent = $eventSystemNoneEvent
+
+GUISetState(@SW_SHOW)
 While 1
-	GUISetState(@SW_SHOW)
-	Switch GUIGetMsg()
-	   Case $GUI_EVENT_CLOSE
-		  Exit
-	   Case $btnStart
-		  StartEveOnline()
-	   Case $btnDockToStation
-		  DockToStation()
-	   Case $btnWarpToSafePos
-		  WarpToSafePos()
-	   Case $btnUndockFromStation
-		  UndockFromStation()
-	   Case $btnAcquireNewTask
-		  AcquireNewTask()
-	   Case $btnEnableTank
-		  EnableTank()
-	   Case $btnExpandDroneWindow
-		  ExpandDroneWindow()
-	   Case $btnLaunchSentryEm
-		  LaunchSentryEm()
-	   Case $btnDronesEngage
-		  DronesEngage()
-	   Case $btnScoopDrones
-		  ScoopDrones()
-    EndSwitch
+	Local $currentEvent = $eventSystemNoneEvent
 	
-	; Checks place holder
+	; GUI
+	If $currentEvent = $eventSystemNoneEvent Then
+		Switch GUIGetMsg()
+			Case $GUI_EVENT_CLOSE
+				$currentEvent = $eventGuiExit
+			Case $btnStartBountyHunter
+				$currentEvent = $eventGuiStartBountyHunter
+			
+			; NOTE: input from GUI should not break logic of State Machine
+			;	make sure to follow/maintain current state, flags, etc.
+#cs				
+			Case $btnStart
+				StartEveOnline()
+			Case $btnDockToStation
+				DockToStation()
+			Case $btnWarpToSafePos
+				WarpToSafePos()
+			Case $btnUndockFromStation
+				UndockFromStation()
+			Case $btnAcquireNewTask
+				AcquireNewTask()
+			Case $btnEnableTank
+				EnableTank()
+			Case $btnExpandDroneWindow
+				ExpandDroneWindow()
+			Case $btnLaunchSentryEm
+				LaunchSentryEm()
+			Case $btnDronesEngage
+				DronesEngage()
+			Case $btnScoopDrones
+				ScoopDrones()
+#ce				
+		EndSwitch
+	EndIf
+
+	; Periodical Checks
+	Select
+		Case $flagPerformLocalCheck = True AND $currentEvent = $eventSystemNoneEvent
+			Local $checkResult = CheckIsMinusInLocal()
+			Select
+				Case $checkResult = True AND $flagMinusInLocal = False
+					$flagMinusInLocal = True
+					$currentEvent = $eventCheckMinusInLocal
+				Case $checkResult = False AND $flagMinusInLocal = True
+					$flagMinusInLocal = False
+					$currentEvent = $eventCheckLocalIsClear					
+			EndSelect
+	EndSelect
 	
+	; Event Sequence Handling
+	If $currentEvent = $eventSystemNoneEvent Then
+		$currentEvent = GetNextEvent()
+	EndIf
+	
+	; Forward Event
+	If NOT ($currentEvent = $eventSystemNoneEvent) Then
+		BountyHunterStateMachine($currentEvent)
+	EndIf
 WEnd
 
-Func StartEveOnline()
-    ApplyPersonalSettings()
-	Run($strEveLauncherPath)
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func BountyHunterStateMachine($event)
+	Switch $event
+	; System events -----------------------------------------------------------
+		Case $eventGuiExit
+			Debug("$eventGuiExit")
+			Exit
+			
+	; GUI events --------------------------------------------------------------
+		Case $eventGuiStartBountyHunter
+			Debug("$eventGuiStartBountyHunter")
+			If bIsEveClientRunning() = True Then
+				$flagPerformLocalCheck = True
+				$flagOnStation = True
+				SetNextEvent($eventInternalUndock)
+			Else
+				SetNextEvent($eventInternalStartEve)
+			EndIf
+
+	; Check events ------------------------------------------------------------
+		Case $eventCheckMinusInLocal
+			Debug("$eventCheckMinusInLocal")
+			If $flagOnStation = True Then
+				SetNextEvent($eventInternalWaitForClearLocal)
+			Else
+				SetNextEvent($eventInternalEvacuation)
+			EndIf
+			
+		Case $eventCheckLocalIsClear
+			Debug("$eventCheckLocalIsClear")
+			If $flagOnStation = True Then
+				SetNextEvent($eventInternalUndock)
+			Else
+				SetNextEvent($eventInternalFindNewAnomaly)
+			EndIf
 	
-	Local $x, $y
-	Local Const $WaitInSeconds = 60
-	
-	; wait for Launcher window
-	local $res = _WaitForImageSearch("Images\Launcher_LoginButton.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Login Failed: Launcher window not found");
-    EndIf
-	
-	Sleep(RandomizeIt(1000, 300))
-	Send($strPassword)
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,15), 1, RandomizeIt(20,5) )
-	
-	; wait for Select Character window
-	$res = _WaitForImageSearch("Images\SelectCharacter_EnterGame.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Login Failed: Select Character window not found");
-    EndIf
-	
-	Sleep(RandomizeIt(1000, 300))
-	MouseClick("left", RandomizeIt($x,10), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
-	
+	; Internal events ---------------------------------------------------------
+		Case $eventInternalStartEve
+			Debug("$eventInternalStartEve")
+			ActionStartEveOnline()
+			SetNextEvent($eventInternalSelectCharacter)
+			
+		Case $eventInternalSelectCharacter
+			Debug("$eventInternalSelectCharacter")
+			ActionSelectCharacter()
+			
+			RndSleep(30000, 5000)
+			$flagPerformLocalCheck = True
+			$flagOnStation = True
+			SetNextEvent($eventInternalUndock)
+		
+		Case $eventInternalWaitForClearLocal
+			Debug("$eventInternalWaitForClearLocal")
+			; do nothing. event will come and system will react
+			
+		Case $eventInternalUndock
+			Debug("$eventInternalUndock")
+			ActionUndockFromTheStation()
+			SetNextEvent($eventInternalTurnTankOn)
+			
+		Case $eventInternalTurnTankOn
+			Debug("$eventInternalTurnTankOn")
+			ActionTurnTankOn()
+			SetNextEvent($eventInternalPrepareDroneWindow)
+			
+		Case $eventInternalPrepareDroneWindow
+			Debug("$eventInternalPrepareDroneWindow")
+			ActionPrepareDroneWindow()
+			SetNextEvent($eventInternalFindNewAnomaly)
+			
+		Case $eventInternalFindNewAnomaly
+			Debug("$eventInternalFindNewAnomaly")
+			ActionFindNewAnomaly()
+			SetNextEvent($eventInternalLaunchSentryEm)
+		
+		Case $eventInternalLaunchSentryEm
+			Debug("$eventInternalFindNewAnomaly")
+			
+		
+	; Unknown event -----------------------------------------------------------
+		Case Else
+			Die("Unknown Event: " & $event)
+	EndSwitch
 EndFunc
+
+;------------------------------------------------------------------------------
+; Event Sequence Handling
+;------------------------------------------------------------------------------
+Func GetNextEvent()
+	Local $retVal = $nextEvent
+	$nextEvent = $eventSystemNoneEvent
+	Return $retVal
+EndFunc
+
+Func SetNextEvent($event)
+	$nextEvent = $event
+EndFunc
+
+
+
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
  
-Func DockToStation()
-    
-	WinActivate ( "EVE" )
-	
-    OpenPeopleAndPlaces()
-	
-	Local $x, $y
-	Local Const $WaitInSeconds = 15
-	
-	; locate Station Bookmark
-	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Station.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Station bookmark not found");
-    EndIf
+
+
+
  
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-
-    ; locate Dock in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_Dock.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Dock"" menu entry not found");
-    EndIf
-	
-	; select Dock from context menu
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	
-	Sleep( RandomizeIt(3000,1000) )
-	ClosePeopleAndPlaces()
-	
-EndFunc
-
-Func UndockFromStation()
-    WinActivate ( "EVE" )
-    ; Alt+U
-	Send("{ALTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("u")
-	Sleep( RandomizeIt(200,50) )
-	Send("{ALTUP}")
-EndFunc
-
-Func WarpToSafePos()
-    
-	WinActivate ( "EVE" )
-	
-    OpenPeopleAndPlaces()
-	
-	Local $x, $y
-	Local Const $WaitInSeconds = 15
-	
-	; locate Station Bookmark
-	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Safe Pos bookmark not found");
-    EndIf
- 
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-
-    ; locate Warp to location... in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_WarpToLocation.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Warp to location..."" menu entry not found");
-    EndIf
-	
-	; select Warp to location from context menu
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	
-	; save Y coord for next step 
-	Local $oldY = $y
-	
-	; locate Within 10km in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_Within10km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Within 10km"" menu entry not found");
-    EndIf
-	
-	; select Within 10km from context menu
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseMove(RandomizeIt($x,5), RandomizeIt($oldY,2), RandomizeIt(20,5))
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	
-	Sleep( RandomizeIt(3000,1000) )
-	ClosePeopleAndPlaces()
-	
-EndFunc
-
-Func AcquireNewTask()
+; obsolete code
+; remove 01.10.2013
 #cs
-  - Select Anomaly
-  - Warp to Anomaly at 70km
-  - Close Anomaly Info Window (by Pressing Enter)
-  - Save info about anomaly, to make sure to not consider it again 
-    OR
-    Ignore result, so anomaly would not be considered again
-  - Close scaner    
-#ce
-
-    WinActivate ( "EVE" )
-
-    OpenScanner()
-	
-	Local $anomaly_x, $anomaly_y
-	Local Const $WaitInSeconds = 10
-	
-	; prepare array with anomaly names
-	Local $anomalies[3] ; size + munber of images
-	$anomalies[0] = 2 ; number of images
-	$anomalies[1] = "Images\Scanner_SanshaForsakenHub.bmp"
-	$anomalies[2] = "Images\Scanner_SanshaForsakenRallyPoint.bmp"
-	
-	; locate anomaly
-	local $res = _WaitForImagesSearch($anomalies, $WaitInSeconds, $ImageSearch_ResultPosition_Center, $anomaly_x, $anomaly_y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("No anomaly found");
-    EndIf
- 
-	; move mouse cursor to found anomaly and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($anomaly_x,20), RandomizeIt($anomaly_y,2), 1, RandomizeIt(20,5) )
-
-    ; locate Warp to location... in context menu
-	Local $warpTo_x, $warpTo_y
-	$res = _WaitForImageSearch("Images\ContextMenu_WarpToWithin.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $warpTo_x, $warpTo_y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Warp to location..."" menu entry not found");
-    EndIf
-	
-	; select Warp to location from context menu
-	MouseClick("left", RandomizeIt($warpTo_x,5), RandomizeIt($warpTo_y,2), 1, RandomizeIt(20,5) )
-	
-	; locate Within 70km in context menu
-	Local $x, $y
-	$res = _WaitForImageSearch("Images\ContextMenu_Within70km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Within 70km"" menu entry not found");
-    EndIf
-	
-	; select Within 70km from context menu
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseMove(RandomizeIt($x,5), RandomizeIt($warpTo_y,2), RandomizeIt(20,5))
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	
-	; Close Anomaly Info Window
-	Sleep( RandomizeIt(2000,500) )
-	Send("{ENTER}")
-	
-	; ignore that anomaly
-	Sleep( RandomizeIt(2000,500) )
-	; move mouse cursor to found anomaly and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($anomaly_x,20), RandomizeIt($anomaly_y,2), 1, RandomizeIt(20,5) )
-	
-	$res = _WaitForImageSearch("Images\ContextMenu_IgnoreResult.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("""Ignore Result"" menu entry not found");
-    EndIf
-	
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	
-	Sleep( RandomizeIt(3000,1000) )
-	CloseScanner()
-	
-EndFunc   
-
-Func EnableTank()
-    WinActivate ( "EVE" )   
-    ; Ctrl+F1, Ctrl+F2, Ctrl+F3, Ctrl+F4
-	Send("{CTRLDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{F1}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{F2}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{F3}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{F4}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{CTRLUP}")
-EndFunc
-
-Func ExpandDroneWindow()
-   
-    WinActivate ( "EVE" )
-	
-	Local $x, $y
-	Local Const $WaitInSeconds = 5
-	
-	
-	; locate 
-	Local $res = _WaitForImageSearch("Images\Drones_DronesInBayClosed.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Drones_DronesInBayClosed not found");
-    EndIf
- 
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-    Sleep( RandomizeIt(200,50) )
-	
-	
-	; locate 
-	$res = _WaitForImageSearch("Images\Drones_DronesInLocalSpaceClosed.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, 1 ) ; note tolerance here
-	If $res = $ImageSearch_Failure Then
-	   Die("Drones_DronesInLocalSpaceClosed not found");
-    EndIf
- 
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	Sleep( RandomizeIt(200,50) )
-
-    
-	; locate 
-	$res = _WaitForImageSearch("Images\Drones_SentryEmClosed.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Drones_SentryEmClosed not found");
-    EndIf
- 
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	Sleep( RandomizeIt(200,50) )
-	
-EndFunc
-
-Func LaunchSentryEm()
-   
-    WinActivate ( "EVE" )
-
-	Die("Not implemented");
-	
-EndFunc
-
-Func DronesEngage()
-    WinActivate ( "EVE" )   
-    ; Ctrl+Shift+A
-	Send("{CTRLDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{SHIFTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("a")
-	Sleep( RandomizeIt(200,50) )
-	Send("{SHIFTUP}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{CTRLUP}")
-EndFunc
-
-Func ScoopDrones()
-    WinActivate ( "EVE" )      
-    ; Ctrl+Shift+D
-	Send("{CTRLDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{SHIFTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("d")
-	Sleep( RandomizeIt(200,50) )
-	Send("{SHIFTUP}")
-	Sleep( RandomizeIt(200,50) )
-	Send("{CTRLUP}")
-EndFunc
-
-
-Func OpenPeopleAndPlaces()
-    ; Alt+E
-	Send("{ALTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("e")
-	Sleep( RandomizeIt(200,50) )
-	Send("{ALTUP}")
-EndFunc
-
-Func ClosePeopleAndPlaces()
-    ; Alt+E
-	OpenPeopleAndPlaces()
-EndFunc
-
-Func OpenScanner()
-    ; Alt+d
-	Send("{ALTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("d")
-	Sleep( RandomizeIt(200,50) )
-	Send("{ALTUP}")
-EndFunc
-
-Func CloseScanner()
-    ; Alt+d
-	OpenScanner()
-EndFunc
- 
-
-
-Func RandomizeIt($valueToRandomize, $delta)
-    Local $r = Random(0, $delta * 2 - 1, 1) - $delta
-	Debug("RandomizeIt(" & $valueToRandomize & ", " & $delta & "): " & $r)
-	$valueToRandomize += $r
-	Return $valueToRandomize
-EndFunc
- 
-; Utils
-; ToDo: move utility routines to separate file
-Func Die($message = "")
-	ConsoleWrite($message & @CRLF)
-	Exit
-EndFunc
-
-Func Debug($message = "")
-	ConsoleWrite($message & @CRLF)
-EndFunc
-
-
-
-
-
-
-
-
 While 1
     
     Local $x = 0, $y = 0
@@ -453,8 +279,6 @@ While $bExitFlag = False
     EndIf
     
 WEnd
-
-; MouseMove
-; Random
+#ce
 
 
