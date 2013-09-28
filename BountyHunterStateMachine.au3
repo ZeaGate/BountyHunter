@@ -38,9 +38,7 @@
 
     Global $bExitFlag = False;
 	
-	; Login related data
-	Global $strEveLauncherPath = ""
-	Global $strPassword = ""
+	
 #EndRegion
 
 ;------------------------------------------------------------------------------
@@ -327,16 +325,6 @@ Func FreeWaitForConfirmation()
 	$flagWfcEnabled = False
 EndFunc
 
-
-
-
-;------------------------------------------------------------------------------
-;------------------------------------------------------------------------------
- 
-
-
-
- 
 ; obsolete code
 ; remove 01.10.2013
 #cs

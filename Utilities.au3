@@ -114,26 +114,12 @@ EndFunc
 ;------------------------------------------------------------------------------
 Func WaitForImage($image, $waitInSeconds)
 	Local $x, $y
-	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, 4 )
 	If $res = $ImageSearch_Failure Then
 		Return False
 	Else
 		Return True
 	EndIf
-#cs
-	Local $bFound = False
-	Local $timer = TimerInit()
-	Local $diff = TimerDiff($timer)
-	
-	While $bFound = False AND $diff < $allowedTime
-		$bFound = IsImageOnDesktopNow($image)
-		$diff = TimerDiff($timer)
-		
-		Debug("WaitForImage(): " & $image & " " & $diff & " " & $bFound)
-	WEnd
-	
-	Return $bFound
-#ce
 EndFunc
 	
 ;------------------------------------------------------------------------------

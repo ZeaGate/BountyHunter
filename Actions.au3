@@ -13,7 +13,7 @@
 ;
 ;------------------------------------------------------------------------------
 Func ActionStartEveOnline()
-	Debug("ActionStartEveOnline()")
+	Debug("ActionStartEveOnline()...")
 	ApplyPersonalSettings()
 	Run($strEveLauncherPath)
 	
@@ -28,13 +28,14 @@ Func ActionStartEveOnline()
 	RndSleep(1000, 300)
 	Send($strPassword)
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
+	Debug("ActionStartEveOnline() done!")
 EndFunc	
 	
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionSelectCharacter()
-	Debug("ActionSelectCharacter()")
+	Debug("ActionSelectCharacter()...")
 	Local $x, $y
 	Local Const $WaitInSeconds = 120
 	
@@ -46,6 +47,7 @@ Func ActionSelectCharacter()
 	
 	RndSleep(1000, 300)
 	MouseClick("left", RandomizeIt($x,10), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
+	Debug("ActionSelectCharacter() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
@@ -89,25 +91,42 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func ActionUndockFromTheStation()
-	Debug("ActionUndockFromTheStation()")
+	Debug("ActionUndockFromTheStation()...")
 	ActivateEveWindow()
 	; Alt+U
 	Send("{ALTDOWN}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("u")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{ALTUP}")
-	RndSleep(200,50)
+	RndSleep(500,50)
+	Debug("ActionUndockFromTheStation() done!")
+EndFunc
+
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func ActionStopShip()
+	Debug("ActionStopShip()...")
+	ActivateEveWindow()
+	; Ctrl+Space
+	Send("{CTRLDOWN}")
+	RndSleep(500,50)
+	Send("{SPACE}")
+	RndSleep(500,50)
+	Send("{CTRLUP}")
+	RndSleep(500,50)
+	Debug("ActionStopShip() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionWarpToSafePos()
-	Debug("ActionFindNewAnomaly()")
+	Debug("ActionWarpToSafePos()...")
 	ActivateEveWindow()
 	
-	ActionScoopDrones()
+	;ActionScoopDrones()
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
@@ -149,13 +168,14 @@ Func ActionWarpToSafePos()
 	Sleep( RandomizeIt(3000,1000) )
 	WindowPeopleAndPlaces($cWindowCommandClose)
 	
+	Debug("ActionWarpToSafePos() done")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionFindNewAnomaly()
-	Debug("ActionFindNewAnomaly()")
+	Debug("ActionFindNewAnomaly()...")
 	ActivateEveWindow()
 
 	MoveMouseToLocalHeader()
@@ -173,8 +193,9 @@ Func ActionFindNewAnomaly()
 	; locate anomaly
 	local $res = _WaitForImagesSearch($anomalies, $WaitInSeconds, $ImageSearch_ResultPosition_Center, $anomaly_x, $anomaly_y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-		;WindowScanner($cWindowCommandClose)
-		Die("No anomaly found");
+		WindowScanner($cWindowCommandClose)
+		; Die("No anomaly found");
+		Return False
 	EndIf
  
 	; move mouse cursor to found anomaly and make a right mouse click for context menu
@@ -227,15 +248,18 @@ Func ActionFindNewAnomaly()
 	RndSleep(3000,1000)
 	MoveMouseToLocalHeader()
 	WindowScanner($cWindowCommandClose)
+	Debug("ActionFindNewAnomaly() done!")
 	
-	WaitForShipStoppingToComplete()
+	Return True
+	
+	;WaitForShipStoppingToComplete()
 EndFunc   
 
-Func WaitForShipStoppingToComplete()
-	Debug("WaitForShipStoppingToComplete()")
+Func ActionWaitForWarpFinished()
+	Debug("ActionWaitForWarpFinished()...")
 	ActivateEveWindow()
-	Debug("  wait ~30sec while ship in warp")
-	RndSleep(30000, 5000)
+	;Debug("  wait ~10sec while ship in warp")
+	RndSleep(10000, 1000)
 		
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
@@ -243,7 +267,7 @@ Func WaitForShipStoppingToComplete()
 	; locate Station Bookmark
 	Local $bm_x, $bm_y
 	Local Const $WaitInSeconds = 5
-	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, $ImageSearch_Tolerance_Zero )
+	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
 		;WindowPeopleAndPlaces($cWindowCommandClose)
 		Die("Safe Pos bookmark not found");
@@ -274,15 +298,17 @@ Func WaitForShipStoppingToComplete()
 	WindowPeopleAndPlaces($cWindowCommandClose)
 	
 	If $bFound = False Then
-		Die("WaitForShipStoppingToComplete failed")
+		Die("ActionWaitForWarpFinished failed")
 	EndIf	
+	
+	Debug("ActionWaitForWarpFinished() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionTurnTankOn()
-	Debug("ActionTurnTankOn()")
+	Debug("ActionTurnTankOn()...")
 	ActivateEveWindow()
 	; Ctrl+F1, Ctrl+F2, Ctrl+F3, Ctrl+F4
 	Send("{CTRLDOWN}")
@@ -297,13 +323,14 @@ Func ActionTurnTankOn()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
+	Debug("ActionTurnTankOn() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionPrepareDroneWindow()
-	Debug("ActionPrepareDroneWindow()")
+	Debug("ActionPrepareDroneWindow()...")
 	ActivateEveWindow()	
 	MoveMouseToTheParkingSpot()
 	
@@ -342,13 +369,15 @@ Func ActionPrepareDroneWindow()
 	If Not ($resInBay AND $resInSpace AND $resSentryEm) Then
 		Beep()
 	EndIf	
+	
+	Debug("ActionPrepareDroneWindow() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionLaunchSentryEm()
-	Debug("ActionLaunchSentryEm()")
+	Debug("ActionLaunchSentryEm()...")
 	ActivateEveWindow()	
 
 	Local $x, $y
@@ -371,14 +400,14 @@ Func ActionLaunchSentryEm()
  
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 	RndSleep(500,50)
-	
+	Debug("ActionLaunchSentryEm() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionDronesEngage()
-	Debug("ActionDronesEngage()")
+	Debug("ActionDronesEngage()...")
 	ActivateEveWindow()	
 	
 	; Ctrl+Shift+A
@@ -392,13 +421,14 @@ Func ActionDronesEngage()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
+	Debug("ActionDronesEngage() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionScoopDrones()
-	Debug("ActionScoopDrones()")
+	Debug("ActionScoopDrones()...")
 	ActivateEveWindow()	
     
 	; Ctrl+Shift+D
@@ -412,8 +442,57 @@ Func ActionScoopDrones()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
+	Debug("ActionScoopDrones() done!")
 EndFunc
 
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func ActionActivateOverviewTab($tabName)
+	;Debug("ActionActivateOverviewTab()...")
+	ActivateEveWindow()
+	
+	; I suppose tab is inactive
+	Local $x, $y
+	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, 4 ) = $ImageSearch_Success Then
+		MouseClick("left", $x, $y, 1, RandomizeIt(20,5) )
+	EndIf
+	
+	; check if tab is active now
+	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Active.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, 4 ) = $ImageSearch_Failure Then
+		Die("ActionActivateOverviewTab(): " & $tabName & " not found!")
+	EndIf
+	
+	;Debug("ActionActivateOverviewTab() done!")
+EndFunc
+
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func ActionManualTargeting($targetTemplate)
+	Debug("ActionManualTargeting()...")
+	
+	Local $x, $y
+	Local $res = $ImageSearch_Success
+	Do
+		$res = _WaitForImageSearch($targetTemplate, 2, $ImageSearch_ResultPosition_TopLeft, $x, $y, 4)
+		If $res = $ImageSearch_Success Then
+			Debug("Target found at " & $x & ", " & $y)
+			; let's target
+			Send("{CTRLDOWN}")
+			RndSleep(500,50)
+			MouseClick("left", $x, $y, 1, RandomizeIt(20,5) )
+			RndSleep(500,50)
+			Send("{CTRLUP}")
+			RndSleep(500,50)			
+			
+			; and even more, let's kill'em already!
+			ActionDronesEngage()
+		EndIf
+	Until $res = $ImageSearch_Failure	
+	
+	Debug("ActionManualTargeting() done")
+EndFunc
 
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------
