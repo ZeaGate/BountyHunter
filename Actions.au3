@@ -13,6 +13,7 @@
 ;
 ;------------------------------------------------------------------------------
 Func ActionStartEveOnline()
+	Debug("ActionStartEveOnline()")
 	ApplyPersonalSettings()
 	Run($strEveLauncherPath)
 	
@@ -33,6 +34,7 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func ActionSelectCharacter()
+	Debug("ActionSelectCharacter()")
 	Local $x, $y
 	Local Const $WaitInSeconds = 120
 	
@@ -50,7 +52,8 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func DockToStation()
-	
+	Debug("DockToStation()")
+	Die("to review DockToStation() routine")
 	WinActivate ( "EVE" )
 	
 	OpenPeopleAndPlaces()
@@ -86,6 +89,7 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func ActionUndockFromTheStation()
+	Debug("ActionUndockFromTheStation()")
 	ActivateEveWindow()
 	; Alt+U
 	Send("{ALTDOWN}")
@@ -94,46 +98,26 @@ Func ActionUndockFromTheStation()
 	RndSleep(200,50)
 	Send("{ALTUP}")
 	RndSleep(200,50)
-	
-	WaitForUndockToComplete()
-EndFunc
-
-Func WaitForUndockToComplete()
-	;Debug("WaitForUndockToComplete()")
-	;ActivateEveWindow()
-	
-	Local $x, $y
-	Local Const $WaitInSeconds = 30
-	
-	; prepare array 
-	Local $DronesInBay[3] ; size + munber of images
-	$DronesInBay[0] = 2 ; number of images
-	$DronesInBay[1] = "Images\Drones_DronesInBayClosed.bmp"
-	$DronesInBay[2] = "Images\Drones_DronesInBayOpen.bmp"
-	
-	; locate 
-	Local $res = _WaitForImagesSearch($DronesInBay, $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
-	If $res = $ImageSearch_Failure Then
-	   Die("Drones_DronesInBay* not found");
-	EndIf
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func WarpToSafePos()
+Func ActionWarpToSafePos()
+	Debug("ActionFindNewAnomaly()")
+	ActivateEveWindow()
 	
-	WinActivate ( "EVE" )
-	
-	OpenPeopleAndPlaces()
+	ActionScoopDrones()
+	MoveMouseToLocalHeader()
+	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
 	Local $x, $y
-	Local Const $WaitInSeconds = 15
+	Local Const $WaitInSeconds = 5
 	
 	; locate Station Bookmark
 	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("Safe Pos bookmark not found");
+		Die("Safe Pos bookmark not found");
 	EndIf
  
 	; move mouse cursor to that bookmark and make a right mouse click for context menu
@@ -142,7 +126,7 @@ Func WarpToSafePos()
 	; locate Warp to location... in context menu
 	$res = _WaitForImageSearch("Images\ContextMenu_WarpToLocation.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("""Warp to location..."" menu entry not found");
+		Die("""Warp to location..."" menu entry not found");
 	EndIf
 	
 	; select Warp to location from context menu
@@ -154,7 +138,7 @@ Func WarpToSafePos()
 	; locate Within 10km in context menu
 	$res = _WaitForImageSearch("Images\ContextMenu_Within10km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("""Within 10km"" menu entry not found");
+		Die("""Within 10km"" menu entry not found");
 	EndIf
 	
 	; select Within 10km from context menu
@@ -163,7 +147,7 @@ Func WarpToSafePos()
 	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 	
 	Sleep( RandomizeIt(3000,1000) )
-	ClosePeopleAndPlaces()
+	WindowPeopleAndPlaces($cWindowCommandClose)
 	
 EndFunc
 
@@ -171,12 +155,14 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func ActionFindNewAnomaly()
+	Debug("ActionFindNewAnomaly()")
 	ActivateEveWindow()
 
-	OpenScanner()
+	MoveMouseToLocalHeader()
+	WindowScanner($cWindowCommandOpen)
 	
 	Local $anomaly_x, $anomaly_y
-	Local Const $WaitInSeconds = 10
+	Local Const $WaitInSeconds = 5
 	
 	; prepare array with anomaly names
 	Local $anomalies[3] ; size + munber of images
@@ -187,7 +173,8 @@ Func ActionFindNewAnomaly()
 	; locate anomaly
 	local $res = _WaitForImagesSearch($anomalies, $WaitInSeconds, $ImageSearch_ResultPosition_Center, $anomaly_x, $anomaly_y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("No anomaly found");
+		;WindowScanner($cWindowCommandClose)
+		Die("No anomaly found");
 	EndIf
  
 	; move mouse cursor to found anomaly and make a right mouse click for context menu
@@ -197,7 +184,9 @@ Func ActionFindNewAnomaly()
 	Local $warpTo_x, $warpTo_y
 	$res = _WaitForImageSearch("Images\ContextMenu_WarpToWithin.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $warpTo_x, $warpTo_y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("""Warp to location..."" menu entry not found");
+		;ClickOnLocalHeader()
+		;WindowScanner($cWindowCommandClose)
+		Die("""Warp to location..."" menu entry not found");
 	EndIf
 	
 	; select Warp to location from context menu
@@ -207,7 +196,9 @@ Func ActionFindNewAnomaly()
 	Local $x, $y
 	$res = _WaitForImageSearch("Images\ContextMenu_Within70km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("""Within 70km"" menu entry not found");
+		;ClickOnLocalHeader()
+		;WindowScanner($cWindowCommandClose)
+		Die("""Within 70km"" menu entry not found");
 	EndIf
 	
 	; select Within 70km from context menu
@@ -226,53 +217,93 @@ Func ActionFindNewAnomaly()
 	
 	$res = _WaitForImageSearch("Images\ContextMenu_IgnoreResult.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("""Ignore Result"" menu entry not found");
+		;ClickOnLocalHeader()
+		;WindowScanner($cWindowCommandClose)
+		Die("""Ignore Result"" menu entry not found");
 	EndIf
 	
 	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 	
 	RndSleep(3000,1000)
-	CloseScanner()
+	MoveMouseToLocalHeader()
+	WindowScanner($cWindowCommandClose)
 	
 	WaitForShipStoppingToComplete()
 EndFunc   
 
 Func WaitForShipStoppingToComplete()
-	; NOT WORKING!!
-	Local $x, $y
-	Local Const $WaitInSeconds = 90
+	Debug("WaitForShipStoppingToComplete()")
+	ActivateEveWindow()
+	Debug("  wait ~30sec while ship in warp")
+	RndSleep(30000, 5000)
+		
+	MoveMouseToLocalHeader()
+	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
-	; locate 
-	Local $res = _WaitForImageSearch("Images\Hud_ShipStopping.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	; locate Station Bookmark
+	Local $bm_x, $bm_y
+	Local Const $WaitInSeconds = 5
+	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("Hud_ShipStopping not found");
+		;WindowPeopleAndPlaces($cWindowCommandClose)
+		Die("Safe Pos bookmark not found");
 	EndIf
+ 
+	$bm_x = RandomizeIt($bm_x, 20)
+	$bm_y = RandomizeIt($bm_y, 2)
+	
+	Local $bFound = False
+	Local Const $iterations = 90
+	For $i = 0 To $iterations
+		Debug("iteration: " & $i)
+		
+		; move mouse cursor to that bookmark and make a right mouse click for context menu
+		MouseClick("right", $bm_x, $bm_y, 1, RandomizeIt(20,5) )
+		
+		If IsImageOnDesktopNow("Images\ContextMenu_WarpToLocation.bmp") Then
+			Debug("Warp Finished!")
+			$bFound = True
+			ExitLoop
+		EndIf
+		
+		Sleep(1000)
+	Next
+	
+	; clean up
+	ClickOnLocalHeader() ; get rid of open context menu
+	WindowPeopleAndPlaces($cWindowCommandClose)
+	
+	If $bFound = False Then
+		Die("WaitForShipStoppingToComplete failed")
+	EndIf	
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionTurnTankOn()
+	Debug("ActionTurnTankOn()")
 	ActivateEveWindow()
 	; Ctrl+F1, Ctrl+F2, Ctrl+F3, Ctrl+F4
 	Send("{CTRLDOWN}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{F1}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{F2}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{F3}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{F4}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 	Send("{CTRLUP}")
-	RndSleep(200,50)
+	RndSleep(500,50)
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
 Func ActionPrepareDroneWindow()
+	Debug("ActionPrepareDroneWindow()")
 	ActivateEveWindow()	
 	MoveMouseToTheParkingSpot()
 	
@@ -299,112 +330,90 @@ Func ActionPrepareDroneWindow()
 		MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 		RndSleep(1000,100)
 	EndIf
+	
+	; self check
+	Local $resInBay 	= IsImageOnDesktopNow("Images\Drones_DronesInBayOpen.bmp")
+	Debug("$resInBay=" & $resInBay)
+	Local $resInSpace 	= IsImageOnDesktopNow("Images\Drones_DronesInLocalSpaceOpen.bmp")
+	Debug("$resInSpace=" & $resInSpace)
+	Local $resSentryEm 	= IsImageOnDesktopNow("Images\Drones_SentryEmOpen.bmp")
+	Debug("$resSentryEm=" & $resSentryEm)
+	
+	If Not ($resInBay AND $resInSpace AND $resSentryEm) Then
+		Beep()
+	EndIf	
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func LaunchSentryEm()
-   
-	WinActivate ( "EVE" )
-	
+Func ActionLaunchSentryEm()
+	Debug("ActionLaunchSentryEm()")
+	ActivateEveWindow()	
+
 	Local $x, $y
 	Local Const $WaitInSeconds = 5
-	
 	
 	; locate 
 	Local $res = _WaitForImageSearch("Images\Drones_SentryEmOpen.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
 	If $res = $ImageSearch_Failure Then
-	   Die("Drones_SentryEmOpen not found");
+		Die("Drones_SentryEmOpen not found");
 	EndIf
  
 	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	
 	; locate 
 	$res = _WaitForImageSearch("Images\ContextMenu_LaunchDrones.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, 1 )
 	If $res = $ImageSearch_Failure Then
-	   Die("ContextMenu_LaunchDrones not found");
+		Die("ContextMenu_LaunchDrones not found");
 	EndIf
  
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func DronesEngage()
-	WinActivate ( "EVE" )   
+Func ActionDronesEngage()
+	Debug("ActionDronesEngage()")
+	ActivateEveWindow()	
+	
 	; Ctrl+Shift+A
 	Send("{CTRLDOWN}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{SHIFTDOWN}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("a")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{SHIFTUP}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{CTRLUP}")
+	RndSleep(500,50)
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ScoopDrones()
-	WinActivate ( "EVE" )      
+Func ActionScoopDrones()
+	Debug("ActionScoopDrones()")
+	ActivateEveWindow()	
+    
 	; Ctrl+Shift+D
 	Send("{CTRLDOWN}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{SHIFTDOWN}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("d")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{SHIFTUP}")
-	Sleep( RandomizeIt(200,50) )
+	RndSleep(500,50)
 	Send("{CTRLUP}")
+	RndSleep(500,50)
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func OpenPeopleAndPlaces()
-	; Alt+E
-	Send("{ALTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("e")
-	Sleep( RandomizeIt(200,50) )
-	Send("{ALTUP}")
-EndFunc
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ClosePeopleAndPlaces()
-	; Alt+E
-	OpenPeopleAndPlaces()
-EndFunc
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func OpenScanner()
-	; Alt+d
-	Send("{ALTDOWN}")
-	Sleep( RandomizeIt(200,50) )
-	Send("d")
-	Sleep( RandomizeIt(200,50) )
-	Send("{ALTUP}")
-EndFunc
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func CloseScanner()
-	; Alt+d
-	OpenScanner()
-EndFunc
 
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------

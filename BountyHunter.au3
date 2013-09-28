@@ -16,6 +16,7 @@
 #include <Actions.au3>
 #include <Checks.au3>
 #include <Globals.au3>
+#include <Windows.au3>
 
 
 #Region Config
@@ -60,13 +61,35 @@ $btnStart = GUICtrlCreateButton("Start EVE Online Client", 5, 305, 290, 20)
 
 
 ;------------------------------------------------------------------------------
+; Event Sequence Handling
+;------------------------------------------------------------------------------
+Global $nextEvent = $eventSystemNoneEvent
+
+;------------------------------------------------------------------------------
+; WaitForConfirmation Handling
+;------------------------------------------------------------------------------
+Global $wfcParamImage = ""
+Global $wfcParamEventOnSuccess = 0
+Global $wfcParamEventOnFailure = 0
+Global $wfcParamAllowedWaitTime = 0
+
+Global $wfcTimerHandler = 0
+
+;------------------------------------------------------------------------------
+; Quick Debug Placeholder
+;------------------------------------------------------------------------------
+;ActionTurnTankOn()
+;ActionPrepareDroneWindow()
+;WaitForShipStoppingToComplete()
+;ActionFindNewAnomaly()
+;Exit
+
+;------------------------------------------------------------------------------
 ; Main Loop
 ; 	Generates Event based on Periodical Checks
 ;	Generates Event based on users imput via GUI
 ;	Forwards Event to BountyHunterStateMachine()
 ;------------------------------------------------------------------------------
-Global $nextEvent = $eventSystemNoneEvent
-
 GUISetState(@SW_SHOW)
 While 1
 	Local $currentEvent = $eventSystemNoneEvent
@@ -139,15 +162,15 @@ Func BountyHunterStateMachine($event)
 	; System events -----------------------------------------------------------
 		Case $eventGuiExit
 			Debug("$eventGuiExit")
+			Beep()
 			Exit
 			
 	; GUI events --------------------------------------------------------------
 		Case $eventGuiStartBountyHunter
 			Debug("$eventGuiStartBountyHunter")
 			If bIsEveClientRunning() = True Then
-				$flagPerformLocalCheck = True
-				$flagOnStation = True
-				SetNextEvent($eventInternalUndock)
+				ActivateEveWindow()
+				InitializeWaitForConfirmation($imageConfirmStation, $eventInternalBountyHunterReadyToGo, $eventGuiExit, 3000)
 			Else
 				SetNextEvent($eventInternalStartEve)
 			EndIf
@@ -170,6 +193,28 @@ Func BountyHunterStateMachine($event)
 			EndIf
 	
 	; Internal events ---------------------------------------------------------
+		Case $eventInternalWaitForConfirmation
+			If $flagWfcEnabled = False Then 
+				Die("WTF am I doing in $eventInternalWaitForConfirmation?")
+			EndIf
+			
+			Local $diff = TimerDiff($wfcTimerHandler)
+			Debug("$eventInternalWaitForConfirmation: " & $diff)
+			
+			Local $bFound = False
+			If $diff < $wfcParamAllowedWaitTime Then
+				$bFound = IsImageOnDesktopNow($wfcParamImage)
+				If $bFound Then
+					Debug("Confirmation (" & $wfcParamImage & ") Found!")
+					SetNextEvent($wfcParamEventOnSuccess)
+				Else
+					SetNextEvent($eventInternalWaitForConfirmation)
+				EndIf
+			Else
+				SetNextEvent($wfcParamEventOnFailure)
+				FreeWaitForConfirmation()
+			EndIf
+			
 		Case $eventInternalStartEve
 			Debug("$eventInternalStartEve")
 			ActionStartEveOnline()
@@ -178,8 +223,10 @@ Func BountyHunterStateMachine($event)
 		Case $eventInternalSelectCharacter
 			Debug("$eventInternalSelectCharacter")
 			ActionSelectCharacter()
+			InitializeWaitForConfirmation($imageConfirmStation, $eventInternalBountyHunterReadyToGo, $eventGuiExit, 30000)
 			
-			RndSleep(30000, 5000)
+		Case $eventInternalBountyHunterReadyToGo
+			; can get here only if we are on station
 			$flagPerformLocalCheck = True
 			$flagOnStation = True
 			SetNextEvent($eventInternalUndock)
@@ -191,11 +238,17 @@ Func BountyHunterStateMachine($event)
 		Case $eventInternalUndock
 			Debug("$eventInternalUndock")
 			ActionUndockFromTheStation()
+			InitializeWaitForConfirmation($imageConfirmSpace, $eventInternalJustUndocked, $eventGuiExit, 30000)
+			
+		Case $eventInternalJustUndocked
+			Debug("$eventInternalJustUndocked")
+			$flagOnStation = False
 			SetNextEvent($eventInternalTurnTankOn)
 			
 		Case $eventInternalTurnTankOn
 			Debug("$eventInternalTurnTankOn")
 			ActionTurnTankOn()
+			; there is no simple way to check if Tank is ON yet
 			SetNextEvent($eventInternalPrepareDroneWindow)
 			
 		Case $eventInternalPrepareDroneWindow
@@ -209,7 +262,19 @@ Func BountyHunterStateMachine($event)
 			SetNextEvent($eventInternalLaunchSentryEm)
 		
 		Case $eventInternalLaunchSentryEm
-			Debug("$eventInternalFindNewAnomaly")
+			Debug("$eventInternalLaunchSentryEm")
+			ActionLaunchSentryEm()
+			$flagDronesDeployed = True
+			SetNextEvent($eventInternalAnomalyFarming)
+			
+		Case $eventInternalAnomalyFarming
+			Debug("$eventInternalAnomalyFarming")
+			; do nothing. event will come and system will react
+			
+		Case $eventInternalEvacuation
+			Debug("$eventInternalEvacuation")
+			ActionWarpToSafePos()
+			SetNextEvent($eventInternalWaitForClearLocal)
 			
 		
 	; Unknown event -----------------------------------------------------------
@@ -230,6 +295,38 @@ EndFunc
 Func SetNextEvent($event)
 	$nextEvent = $event
 EndFunc
+
+;------------------------------------------------------------------------------
+; WaitForConfirmation Handling
+;------------------------------------------------------------------------------
+Func InitializeWaitForConfirmation($image, $eventOnSuccess, $eventOnFailure, $allowedWaitTime)
+	Debug("InitializeWaitForConfirmation (" & $image & ") " & $allowedWaitTime)
+	
+	$wfcParamImage = $image
+	$wfcParamEventOnSuccess = $eventOnSuccess
+	$wfcParamEventOnFailure = $eventOnFailure
+	$wfcParamAllowedWaitTime = $allowedWaitTime
+
+	$wfcTimerHandler = TimerInit()
+	
+	$flagWfcEnabled = True
+	
+	SetNextEvent($eventInternalWaitForConfirmation)
+EndFunc
+
+Func FreeWaitForConfirmation()
+	Debug("FreeWaitForConfirmation")
+	
+	$wfcParamImage = ""
+	$wfcParamEventOnSuccess = 0
+	$wfcParamEventOnFailure = 0
+	$wfcParamAllowedWaitTime = 0
+
+	$wfcTimerHandler = 0
+	
+	$flagWfcEnabled = False
+EndFunc
+
 
 
 

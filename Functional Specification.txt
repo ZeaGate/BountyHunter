@@ -93,3 +93,6 @@ Ctrl+Shift+D	Drone Return to Drone Bay
 Plan:
 1. Implement first line actions
 2. Implement State Machine
+
+Notes:
+- to check result of executed action

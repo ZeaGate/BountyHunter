@@ -66,7 +66,93 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func MoveMouseToTheParkingSpot()
-	MouseMove( 10, 10 )
+	MouseMove(0, 0) ; randomize coords?
+EndFunc
+
+Func MoveMouseToLocalHeader()
+	Local $x, $y
+	
+	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	If $res = $ImageSearch_Success Then
+		MouseMove($x, $y, RandomizeIt(20,5) ) ; randomize coords?
+	Else
+		Die("MoveMouseToLocalHeader(): " &  "Images\WindowHeader_Local.bmp" & " not found")
+	EndIf
+	
+	Return False
+EndFunc
+
+Func ClickOnLocalHeader()
+	Local $x, $y
+	
+	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	If $res = $ImageSearch_Success Then
+		MouseClick("left", $x, $y, 1, RandomizeIt(20,5) ) ; randomize coords?
+	Else
+		Die("ClickOnLocalHeader(): " &  "Images\WindowHeader_Local.bmp" & " not found")
+	EndIf
+	
+	Return False
+EndFunc
+
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func IsImageOnDesktopNow($image)
+	Local $x, $y
+	
+	Local $res = _ImageSearch($image, $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	If $res = $ImageSearch_Success Then
+		Return True
+	EndIf
+	
+	Return False
+EndFunc
+
+;------------------------------------------------------------------------------
+; Returns True if $image was found on desktop within $waitInSeconds
+;------------------------------------------------------------------------------
+Func WaitForImage($image, $waitInSeconds)
+	Local $x, $y
+	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	If $res = $ImageSearch_Failure Then
+		Return False
+	Else
+		Return True
+	EndIf
+#cs
+	Local $bFound = False
+	Local $timer = TimerInit()
+	Local $diff = TimerDiff($timer)
+	
+	While $bFound = False AND $diff < $allowedTime
+		$bFound = IsImageOnDesktopNow($image)
+		$diff = TimerDiff($timer)
+		
+		Debug("WaitForImage(): " & $image & " " & $diff & " " & $bFound)
+	WEnd
+	
+	Return $bFound
+#ce
+EndFunc
+	
+;------------------------------------------------------------------------------
+; Returns True if $image not found on desktop within $waitInSeconds
+;------------------------------------------------------------------------------
+Func WaitForImageGone($image, $waitInSeconds)
+	Local $bFound = True
+	Local $allowedTime = $waitInSeconds * 1000
+	Local $timer = TimerInit()
+	Local $diff = TimerDiff($timer)
+	
+	While $bFound = True AND $diff < $allowedTime
+		$bFound = IsImageOnDesktopNow($image)
+		$diff = TimerDiff($timer)
+		
+		Debug("WaitForImageGone(): " & $image & " " & $diff & " " & $bFound)
+	WEnd
+	
+	Return NOT $bFound
 EndFunc
 
 

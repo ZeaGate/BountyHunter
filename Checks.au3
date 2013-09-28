@@ -12,9 +12,6 @@
 ;
 ;------------------------------------------------------------------------------
 Func CheckIsMinusInLocal()
-	; temporary
-	Return False
-	
 	Local $x, $y
 	
 	; prepare array with "reds" images
@@ -28,8 +25,9 @@ Func CheckIsMinusInLocal()
 	ActivateEveWindow()
 	
 	; locate anomaly
-	Local $res = _ImagesSearch($minuses, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	Local $res = _ImagesSearch($minuses, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
 	If $res > $ImageSearch_Failure Then
+		;Debug("Minus in local")
 		Return True;
 	EndIf
 EndFunc
