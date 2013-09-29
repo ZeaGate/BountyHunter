@@ -18,7 +18,20 @@
 
 ;Local $x, $y
 ;Debug(_WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", 2, $ImageSearch_ResultPosition_Center, $x, $y, 4 ))
+;Debug(CheckPlayerOverview())
 ;Exit
+#cs
+While 1
+	Local $x, $y
+	Local $res = _WaitForImageSearch("Images\EngagedBy_Drones.bmp", 1, $ImageSearch_ResultPosition_Center, $x, $y, 4 )
+	Debug($res)
+	If $res>0 Then
+		MouseMove($x, $y)
+	EndIf
+	Sleep(3000)
+WEnd	
+Exit
+#ce
 
 ;------------------------------------------------------------------------------
 ; GUI
@@ -167,31 +180,13 @@ Func BountyHunterDirect()
 				
 				$bInitInAnomaly = False
 			EndIf
-#cs			
-			Local $bSmallNpcPresent = CheckSmallNpc()
-			If $bSmallNpcPresent = True Then
-				; manual targeting
-				ActionManualTargeting("Images\Overview_SmallNpc.bmp")
-				ActionDronesEngage()
-			EndIf
-#ce			
-			; new manual targeting
-			; note: targeting should not engage!!
-			; note2: targeting points to center!
-			; note3: at the end -> move cursor down a bit
 			
-			
-			; if any targeted npc found -> Engage Drones
-			; Else
-			; if small npc found -> Targeting(small)
-			; Else
-			; if medium npc found -> Targeting(medium)
-			; else do nothing
-			
-			Debug("Before Manual Switch: " & TimerDiff($timerInAnomaly))
+			Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
 			If CheckTargetedNpc() Then
 				Debug("...Targeted NPC Found, engaging " & TimerDiff($timerInAnomaly))
-				ActionDronesEngage()
+				If CheckEngagement() = False Then
+					ActionDronesEngage()
+				EndIf
 			EndIf
 				
 			If CheckSpecificNpc("Small") Then
@@ -269,6 +264,10 @@ EndFunc
 Func CheckSpecificNpc($targetTemplate)
 	;ActionActivateOverviewTab("Npc")
 	Return CheckIsSpecificNpcInOverview($targetTemplate)
+EndFunc
+
+Func CheckEngagement()
+	Return CheckIsActiveEngagement()
 EndFunc
 
 ;------------------------------------------------------------------------------

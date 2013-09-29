@@ -159,5 +159,19 @@ Func CheckIsDroneTakesDamage()
 	Return False
 EndFunc
 
+Func CheckIsActiveEngagement()
+	Local $x, $y
+	
+	ActivateEveWindow()
+	
+	; locate
+	Local $res = _ImageSearch("Images\EngagedBy_Drones.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	If $res > $ImageSearch_Failure Then
+		Return True
+	EndIf
+	
+	Return False
+EndFunc
+
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------
