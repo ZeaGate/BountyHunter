@@ -16,8 +16,8 @@
 #include <GUIConstantsEx.au3>
 #include <ImageSearch.au3>
 
-;ActionManualTargeting("Images\Overview_SmallNpc.bmp")
-;ActionDronesEngage()
+;Local $x, $y
+;Debug(_WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", 2, $ImageSearch_ResultPosition_Center, $x, $y, 4 ))
 ;Exit
 
 ;------------------------------------------------------------------------------
@@ -34,17 +34,18 @@ Global $bAtSafePos = False
 
 Func OnClose()
 	Debug("OnClose() event")
-	$bExitFlag = True;
+	;$bExitFlag = True;
+	Exit
 EndFunc
 
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-BountyHunterStraight()
+BountyHunterDirect()
 
-Func BountyHunterStraight()
-	Debug("BountyHunterStraight() Started")
+Func BountyHunterDirect()
+	Debug("BountyHunterDirect() Started")
 	MsgBox(0, "GUI Event", "You will have 10 seconds to move BH GUI")
 	Sleep(10000)
 	
@@ -58,7 +59,7 @@ Func BountyHunterStraight()
 	
 	; make sure that we are docked in station
 	Debug("Wait for Station Environment...")
-	If WaitForImage("Images\WindowHeader_StationServices.bmp", 30) = True Then
+	If WaitForImage("Images\WindowHeader_StationServices.bmp", 60) = True Then
 		Debug("Station Confirmed!")
 	Else
 		Die("We are not docked at the Station?")
@@ -144,6 +145,7 @@ Func BountyHunterStraight()
 			EndIf
 			
 			If $bPlayerPresenceCheckRequired = True Then
+				ActionActivateOverviewTab("Pilots")
 				Local $bPlayerPresent = CheckPlayerOverview()
 				If $bPlayerPresent = True Then
 					Debug("Anomaly is occupied!")
@@ -152,6 +154,7 @@ Func BountyHunterStraight()
 					ContinueLoop 2
 				EndIf
 				
+				ActionActivateOverviewTab("Npc")
 				$bPlayerPresenceCheckRequired = False
 			EndIf
 			
@@ -164,16 +167,51 @@ Func BountyHunterStraight()
 				
 				$bInitInAnomaly = False
 			EndIf
-			
+#cs			
 			Local $bSmallNpcPresent = CheckSmallNpc()
 			If $bSmallNpcPresent = True Then
 				; manual targeting
 				ActionManualTargeting("Images\Overview_SmallNpc.bmp")
 				ActionDronesEngage()
 			EndIf
+#ce			
+			; new manual targeting
+			; note: targeting should not engage!!
+			; note2: targeting points to center!
+			; note3: at the end -> move cursor down a bit
+			
+			
+			; if any targeted npc found -> Engage Drones
+			; Else
+			; if small npc found -> Targeting(small)
+			; Else
+			; if medium npc found -> Targeting(medium)
+			; else do nothing
+			
+			Debug("Before Manual Switch: " & TimerDiff($timerInAnomaly))
+			If CheckTargetedNpc() Then
+				Debug("...Targeted NPC Found, engaging " & TimerDiff($timerInAnomaly))
+				ActionDronesEngage()
+			EndIf
+				
+			If CheckSpecificNpc("Small") Then
+				Debug("...Small NPC Found, targeting " & TimerDiff($timerInAnomaly))
+				ActionManualTargeting("Small")
+			ElseIf CheckSpecificNpc("Medium") Then
+				Debug("...Medium NPC Found, targeting " & TimerDiff($timerInAnomaly))
+				ActionManualTargeting("Medium")
+			Else
+				Debug("...Only Big NPC Found, do nothing " & TimerDiff($timerInAnomaly))
+			EndIf
 			
 			Sleep(1000)
 			$bNpcPresent = CheckNpc()
+			
+			;If $bNpcPresent = False Then
+			;	Sleep(10000)
+			;	$bNpcPresent = CheckNpc()
+			;EndIf
+				
 		WEnd
 		
 		; scoop drones
@@ -209,18 +247,28 @@ Func CheckLocal()
 EndFunc
 
 Func CheckPlayerOverview()
-	ActionActivateOverviewTab("Pilots")
+	;ActionActivateOverviewTab("Pilots")
 	Return CheckIsAnyPilotInOverview()
 EndFunc
 
 Func CheckSmallNpc()
-	ActionActivateOverviewTab("Npc")
+	;ActionActivateOverviewTab("Npc")
 	Return CheckIsSmallNpcInOverview()
 EndFunc
 
 Func CheckNpc()
-	ActionActivateOverviewTab("Npc")
+	;ActionActivateOverviewTab("Npc")
 	Return CheckIsAnyNpcInOverview()
+EndFunc
+
+Func CheckTargetedNpc()
+	;ActionActivateOverviewTab("Npc")
+	Return CheckIsAnyTargetedNpcInOverview()
+EndFunc
+
+Func CheckSpecificNpc($targetTemplate)
+	;ActionActivateOverviewTab("Npc")
+	Return CheckIsSpecificNpcInOverview($targetTemplate)
 EndFunc
 
 ;------------------------------------------------------------------------------

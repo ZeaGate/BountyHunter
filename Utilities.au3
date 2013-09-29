@@ -58,6 +58,7 @@ EndFunc
 ;------------------------------------------------------------------------------
 Func ActivateEveWindow()
 	If NOT WinActive("EVE") Then
+		Sleep(5000) ; give me some time, please
 		WinActivate("EVE")
 	EndIf
 EndFunc		

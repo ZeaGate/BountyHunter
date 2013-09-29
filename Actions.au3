@@ -267,10 +267,10 @@ Func ActionWaitForWarpFinished()
 	; locate Station Bookmark
 	Local $bm_x, $bm_y
 	Local Const $WaitInSeconds = 5
-	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, $ImageSearch_Tolerance_Zero )
+	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, 4 )
 	If $res = $ImageSearch_Failure Then
 		;WindowPeopleAndPlaces($cWindowCommandClose)
-		Die("Safe Pos bookmark not found");
+		Die("Dummy bookmark not found");
 	EndIf
  
 	$bm_x = RandomizeIt($bm_x, 20)
@@ -475,21 +475,23 @@ Func ActionManualTargeting($targetTemplate)
 	Local $x, $y
 	Local $res = $ImageSearch_Success
 	Do
-		$res = _WaitForImageSearch($targetTemplate, 2, $ImageSearch_ResultPosition_TopLeft, $x, $y, 4)
+		$res = _WaitForImageSearch("Images\Overview_" & $targetTemplate & "Npc.bmp", 2, $ImageSearch_ResultPosition_Center, $x, $y, 4)
 		If $res = $ImageSearch_Success Then
 			Debug("Target found at " & $x & ", " & $y)
 			; let's target
 			Send("{CTRLDOWN}")
 			RndSleep(500,50)
-			MouseClick("left", $x, $y, 1, RandomizeIt(20,5) )
+			MouseClick("left", $x, $y, 1, RandomizeIt(10,5) )
 			RndSleep(500,50)
 			Send("{CTRLUP}")
 			RndSleep(500,50)			
-			
-			; and even more, let's kill'em already!
-			ActionDronesEngage()
 		EndIf
-	Until $res = $ImageSearch_Failure	
+	Until True ; $res = $ImageSearch_Failure	
+	
+	; move cursor down a bit
+	If $x > 0 Then
+		MouseMove(RandomizeIt($x,4), RandomizeIt($y+200,5), RandomizeIt(10,5) )
+	EndIf
 	
 	Debug("ActionManualTargeting() done")
 EndFunc

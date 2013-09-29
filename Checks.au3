@@ -64,12 +64,65 @@ EndFunc
 Func CheckIsAnyNpcInOverview()
 	Local $x, $y
 	
-	; prepare array with player ships images
-	Local $npc[4] ; size + munber of images
-	$npc[0] = 3 ; number of images
+	; prepare array with NPC ships images
+	Local $npc[13] ; size + munber of images
+	$npc[0] = 12 ; number of images
 	$npc[1] = "Images\Overview_BigNpc.bmp"
 	$npc[2] = "Images\Overview_MediumNpc.bmp"
 	$npc[3] = "Images\Overview_SmallNpc.bmp"
+	$npc[4] = "Images\Overview_BigNpcTargeted.bmp"
+	$npc[5] = "Images\Overview_MediumNpcTargeted.bmp"
+	$npc[6] = "Images\Overview_SmallNpcTargeted.bmp"
+	$npc[7] = "Images\Overview_BigNpcTargetedSelected.bmp"
+	$npc[8] = "Images\Overview_MediumNpcTargetedSelected.bmp"
+	$npc[9] = "Images\Overview_SmallNpcTargetedSelected.bmp"
+	$npc[10] = "Images\Overview_BigNpcSelected.bmp"
+	$npc[11] = "Images\Overview_MediumNpcSelected.bmp"
+	$npc[12] = "Images\Overview_SmallNpcSelected.bmp"
+	
+	ActivateEveWindow()
+	
+	; locate
+	Local $res = _WaitForImagesSearch($npc, 5, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	If $res > $ImageSearch_Failure Then
+		Return True
+	EndIf
+	
+	Return False
+EndFunc
+
+Func CheckIsAnyTargetedNpcInOverview()
+	Local $x, $y
+	
+	; prepare array with NPC ships images
+	Local $npc[7] ; size + munber of images
+	$npc[0] = 6 ; number of images
+	$npc[1] = "Images\Overview_BigNpcTargeted.bmp"
+	$npc[2] = "Images\Overview_MediumNpcTargeted.bmp"
+	$npc[3] = "Images\Overview_SmallNpcTargeted.bmp"
+	$npc[4] = "Images\Overview_BigNpcTargetedSelected.bmp"
+	$npc[5] = "Images\Overview_MediumNpcTargetedSelected.bmp"
+	$npc[6] = "Images\Overview_SmallNpcTargetedSelected.bmp"
+	
+	ActivateEveWindow()
+	
+	; locate
+	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	If $res > $ImageSearch_Failure Then
+		Return True
+	EndIf
+	
+	Return False
+EndFunc
+
+Func CheckIsSpecificNpcInOverview($targetTemplate)
+	Local $x, $y
+	
+	; prepare array with NPC ships images
+	Local $npc[3] ; size + munber of images
+	$npc[0] = 2 ; number of images
+	$npc[1] = "Images\Overview_" & $targetTemplate & "Npc.bmp"
+	$npc[2] = "Images\Overview_" & $targetTemplate & "NpcSelected.bmp"
 	
 	ActivateEveWindow()
 	
