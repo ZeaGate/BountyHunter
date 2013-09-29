@@ -16,10 +16,6 @@
 #include <GUIConstantsEx.au3>
 #include <ImageSearch.au3>
 
-;Local $x, $y
-;Debug(_WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", 2, $ImageSearch_ResultPosition_Center, $x, $y, 4 ))
-;Debug(CheckPlayerOverview())
-;Exit
 #cs
 While 1
 	Local $x, $y
@@ -138,6 +134,9 @@ Func BountyHunterDirect()
 		; wait for warp in
 		ActionWaitForWarpFinished()
 		
+		; we are not at the safe pos anymore
+		$bAtSafePos = False
+		
 		Local $bNpcPresent = True
 		Local $bPlayerPresenceCheckRequired = True
 		Local $bInitInAnomaly = True
@@ -201,12 +200,6 @@ Func BountyHunterDirect()
 			
 			Sleep(1000)
 			$bNpcPresent = CheckNpc()
-			
-			;If $bNpcPresent = False Then
-			;	Sleep(10000)
-			;	$bNpcPresent = CheckNpc()
-			;EndIf
-				
 		WEnd
 		
 		; scoop drones

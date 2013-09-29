@@ -134,7 +134,7 @@ Func ActionWarpToSafePos()
 	Local Const $WaitInSeconds = 5
 	
 	; locate Station Bookmark
-	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, 4 )
 	If $res = $ImageSearch_Failure Then
 		Die("Safe Pos bookmark not found");
 	EndIf
@@ -230,6 +230,25 @@ Func ActionFindNewAnomaly()
 	; Close Anomaly Info Window
 	RndSleep(2000,500)
 	Send("{ENTER}")
+	
+	; save bookmark
+	RndSleep(2000,500)
+	; move mouse cursor to found anomaly and make a right mouse click for context menu
+	MouseClick("right", RandomizeIt($anomaly_x,20), RandomizeIt($anomaly_y,2), 1, RandomizeIt(20,5) )
+	
+	$res = _WaitForImageSearch("Images\ContextMenu_SaveLocation.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $ImageSearch_Tolerance_Zero )
+	If $res = $ImageSearch_Failure Then
+		Die("""Save Location"" menu entry not found");
+	EndIf
+	
+	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
+	
+	; specify bookmark name
+	RndSleep(2000,500)
+	Send("BH.zAnomaly")
+	RndSleep(500,50)
+	Send("{ENTER}")
+	
 	
 	; ignore that anomaly
 	RndSleep(2000,500)
