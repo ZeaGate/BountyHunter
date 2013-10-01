@@ -25,7 +25,7 @@ Func CheckIsMinusInLocal()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImagesSearch($minuses, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImagesSearch($minuses, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -50,7 +50,7 @@ Func CheckIsAnyPilotInOverview()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImagesSearch($ships, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImagesSearch($ships, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -83,7 +83,7 @@ Func CheckIsAnyNpcInOverview()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _WaitForImagesSearch($npc, 5, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _WaitForImagesSearch($npc, 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -107,7 +107,7 @@ Func CheckIsAnyTargetedNpcInOverview()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -127,7 +127,7 @@ Func CheckIsSpecificNpcInOverview($targetTemplate)
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -144,7 +144,7 @@ Func CheckIsSmallNpcInOverview()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImageSearch("Images\Overview_SmallNpc.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImageSearch("Images\Overview_SmallNpc.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf
@@ -165,7 +165,7 @@ Func CheckIsActiveEngagement()
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _ImageSearch("Images\EngagedBy_Drones.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 16 )
+	Local $res = _ImageSearch("Images\EngagedBy_Drones.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
 		Return True
 	EndIf

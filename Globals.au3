@@ -58,5 +58,10 @@ Global $flagDronesDeployed				= False
 Global Const $imageConfirmStation = "Images\WindowHeader_StationServices.bmp"
 Global Const $imageConfirmSpace = "Images\WindowHeader_Drones.bmp"
 
+;------------------------------------------------------------------------------ 
+; 
+;------------------------------------------------------------------------------
+Global Const $cISTolerance = 16
+
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------

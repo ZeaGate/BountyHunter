@@ -73,7 +73,7 @@ EndFunc
 Func MoveMouseToLocalHeader()
 	Local $x, $y
 	
-	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Success Then
 		MouseMove($x, $y, RandomizeIt(20,5) ) ; randomize coords?
 	Else
@@ -86,7 +86,7 @@ EndFunc
 Func ClickOnLocalHeader()
 	Local $x, $y
 	
-	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Success Then
 		MouseClick("left", $x, $y, 1, RandomizeIt(20,5) ) ; randomize coords?
 	Else
@@ -102,7 +102,7 @@ EndFunc
 Func IsImageOnDesktopNow($image)
 	Local $x, $y
 	
-	Local $res = _ImageSearch($image, $ImageSearch_ResultPosition_Center, $x, $y, 2 )
+	Local $res = _ImageSearch($image, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Success Then
 		Return True
 	EndIf
@@ -115,7 +115,7 @@ EndFunc
 ;------------------------------------------------------------------------------
 Func WaitForImage($image, $waitInSeconds)
 	Local $x, $y
-	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, 4 )
+	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Failure Then
 		Return False
 	Else
