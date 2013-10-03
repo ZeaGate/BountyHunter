@@ -65,26 +65,33 @@ Func CheckIsAnyNpcInOverview()
 	Local $x, $y
 	
 	; prepare array with NPC ships images
-	Local $npc[13] ; size + munber of images
-	$npc[0] = 12 ; number of images
-	$npc[1] = "Images\Overview_BigNpc.bmp"
-	$npc[2] = "Images\Overview_MediumNpc.bmp"
-	$npc[3] = "Images\Overview_SmallNpc.bmp"
-	$npc[4] = "Images\Overview_BigNpcTargeted.bmp"
-	$npc[5] = "Images\Overview_MediumNpcTargeted.bmp"
-	$npc[6] = "Images\Overview_SmallNpcTargeted.bmp"
-	$npc[7] = "Images\Overview_BigNpcTargetedSelected.bmp"
-	$npc[8] = "Images\Overview_MediumNpcTargetedSelected.bmp"
-	$npc[9] = "Images\Overview_SmallNpcTargetedSelected.bmp"
-	$npc[10] = "Images\Overview_BigNpcSelected.bmp"
-	$npc[11] = "Images\Overview_MediumNpcSelected.bmp"
-	$npc[12] = "Images\Overview_SmallNpcSelected.bmp"
+	Local $npc[19] ; size + munber of images
+	$npc[0] = 18 ; number of images
+	$npc[1] = "Images\Overview_NpcBigSelectedFalseTargetedActive.bmp"
+	$npc[2] = "Images\Overview_NpcBigSelectedFalseTargetedNone.bmp"
+	$npc[3] = "Images\Overview_NpcBigSelectedFalseTargetedPassive.bmp"
+	$npc[4] = "Images\Overview_NpcBigSelectedTrueTargetedActive.bmp"
+	$npc[5] = "Images\Overview_NpcBigSelectedTrueTargetedNone.bmp"
+	$npc[6] = "Images\Overview_NpcBigSelectedTrueTargetedPassive.bmp"
+	$npc[7] = "Images\Overview_NpcMediumSelectedFalseTargetedActive.bmp"
+	$npc[8] = "Images\Overview_NpcMediumSelectedFalseTargetedNone.bmp"
+	$npc[9] = "Images\Overview_NpcMediumSelectedFalseTargetedPassive.bmp"
+	$npc[10] = "Images\Overview_NpcMediumSelectedTrueTargetedActive.bmp"
+	$npc[11] = "Images\Overview_NpcMediumSelectedTrueTargetedNone.bmp"
+	$npc[12] = "Images\Overview_NpcMediumSelectedTrueTargetedPassive.bmp"
+	$npc[13] = "Images\Overview_NpcSmallSelectedFalseTargetedActive.bmp"
+	$npc[14] = "Images\Overview_NpcSmallSelectedFalseTargetedNone.bmp"
+	$npc[15] = "Images\Overview_NpcSmallSelectedFalseTargetedPassive.bmp"
+	$npc[16] = "Images\Overview_NpcSmallSelectedTrueTargetedActive.bmp"
+	$npc[17] = "Images\Overview_NpcSmallSelectedTrueTargetedNone.bmp"
+	$npc[18] = "Images\Overview_NpcSmallSelectedTrueTargetedPassive.bmp"
 	
 	ActivateEveWindow()
 	
 	; locate
-	Local $res = _WaitForImagesSearch($npc, 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
+	Local $res = _WaitForImagesSearch($npc, 1, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
+		;Debug("CheckIsAnyNpcInOverview(): " & $npc[$res] & " was found!")
 		Return True
 	EndIf
 	
@@ -95,14 +102,20 @@ Func CheckIsAnyTargetedNpcInOverview()
 	Local $x, $y
 	
 	; prepare array with NPC ships images
-	Local $npc[7] ; size + munber of images
-	$npc[0] = 6 ; number of images
-	$npc[1] = "Images\Overview_BigNpcTargeted.bmp"
-	$npc[2] = "Images\Overview_MediumNpcTargeted.bmp"
-	$npc[3] = "Images\Overview_SmallNpcTargeted.bmp"
-	$npc[4] = "Images\Overview_BigNpcTargetedSelected.bmp"
-	$npc[5] = "Images\Overview_MediumNpcTargetedSelected.bmp"
-	$npc[6] = "Images\Overview_SmallNpcTargetedSelected.bmp"
+	Local $npc[13] ; size + munber of images
+	$npc[0] = 12 ; number of images
+	$npc[1] = "Images\Overview_NpcBigSelectedFalseTargetedActive.bmp"
+	$npc[2] = "Images\Overview_NpcBigSelectedFalseTargetedPassive.bmp"
+	$npc[3] = "Images\Overview_NpcBigSelectedTrueTargetedActive.bmp"
+	$npc[4] = "Images\Overview_NpcBigSelectedTrueTargetedPassive.bmp"
+	$npc[5] = "Images\Overview_NpcMediumSelectedFalseTargetedActive.bmp"
+	$npc[6] = "Images\Overview_NpcMediumSelectedFalseTargetedPassive.bmp"
+	$npc[7] = "Images\Overview_NpcMediumSelectedTrueTargetedActive.bmp"
+	$npc[8] = "Images\Overview_NpcMediumSelectedTrueTargetedPassive.bmp"
+	$npc[9] = "Images\Overview_NpcSmallSelectedFalseTargetedActive.bmp"
+	$npc[10] = "Images\Overview_NpcSmallSelectedFalseTargetedPassive.bmp"
+	$npc[11] = "Images\Overview_NpcSmallSelectedTrueTargetedActive.bmp"
+	$npc[12] = "Images\Overview_NpcSmallSelectedTrueTargetedPassive.bmp"
 	
 	ActivateEveWindow()
 	
@@ -114,41 +127,56 @@ Func CheckIsAnyTargetedNpcInOverview()
 	
 	Return False
 EndFunc
-
-Func CheckIsSpecificNpcInOverview($targetTemplate)
+ 
+Func CheckIsSpecificTargetedNpcInOverview($targetTemplate)
 	Local $x, $y
+	return CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y)
+EndFunc	
+
+Func CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
+	; prepare array with NPC ships images
+	Local $npc[5] ; size + munber of images
+	$npc[0] = 4 ; number of images
+	$npc[1] = "Images\Overview_Npc" & $targetTemplate & "SelectedFalseTargetedActive.bmp"
+	$npc[2] = "Images\Overview_Npc" & $targetTemplate & "SelectedFalseTargetedPassive.bmp"
+	$npc[3] = "Images\Overview_Npc" & $targetTemplate & "SelectedTrueTargetedActive.bmp"
+	$npc[4] = "Images\Overview_Npc" & $targetTemplate & "SelectedTrueTargetedPassive.bmp"
 	
+	ActivateEveWindow()
+	
+	; locate
+	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
+	If $res > $ImageSearch_Failure Then
+		Debug("CheckIsSpecificTargetedNpcInOverview(): " & $npc[$res] & " was found!")
+		Return True
+	EndIf
+	
+	Debug("CheckIsSpecificTargetedNpcInOverview(): " & $targetTemplate & " was NOT found!")
+	Return False
+EndFunc
+
+Func CheckIsSpecificNotTargetedNpcInOverview($targetTemplate)
+	Local $x, $y
+	Return CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y)
+EndFunc
+
+Func CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	; prepare array with NPC ships images
 	Local $npc[3] ; size + munber of images
 	$npc[0] = 2 ; number of images
-	$npc[1] = "Images\Overview_" & $targetTemplate & "Npc.bmp"
-	$npc[2] = "Images\Overview_" & $targetTemplate & "NpcSelected.bmp"
+	$npc[1] = "Images\Overview_Npc" & $targetTemplate & "SelectedFalseTargetedNone.bmp"
+	$npc[2] = "Images\Overview_Npc" & $targetTemplate & "SelectedTrueTargetedNone.bmp"
 	
 	ActivateEveWindow()
 	
 	; locate
 	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res > $ImageSearch_Failure Then
+		Debug("CheckIsSpecificNotTargetedNpcInOverview(): " & $npc[$res] & " was found!")
 		Return True
 	EndIf
 	
-	Return False
-EndFunc
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func CheckIsSmallNpcInOverview()
-	Local $x, $y
-	
-	ActivateEveWindow()
-	
-	; locate
-	Local $res = _ImageSearch("Images\Overview_SmallNpc.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Return True
-	EndIf
-	
+	Debug("CheckIsSpecificNotTargetedNpcInOverview(): " & $targetTemplate & " was NOT found!")
 	Return False
 EndFunc
 

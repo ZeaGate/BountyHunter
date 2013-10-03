@@ -18,16 +18,81 @@
 
 #cs
 While 1
+CheckIsSpecificNpcInOverview("Big")
+Sleep(500)
+CheckIsSpecificNpcInOverview("Medium")
+Sleep(500)
+CheckIsSpecificNpcInOverview("Small")
+Sleep(500)
+WEnd
+#ce
+
+;Sleep(2000)
+;CheckSpecificTargetedNpc("Big")
+;Sleep(2000)
+;ActionManualUnTargeting("Big")
+;Exit
+
+#cs
+While 1
+			Local $bIsSmallTargeted = CheckSpecificTargetedNpc("Small")
+			Local $bIsMediumTargeted = CheckSpecificTargetedNpc("Medium")
+			Local $bIsBigTargeted = CheckSpecificTargetedNpc("Big")
+			;Debug("Big: " & $bIsBigTargeted & "          Medium: " & $bIsMediumTargeted & "          Small: " & $bIsSmallTargeted)
+			;Sleep(1000)
+			
+			; fix targeting that was done by mistake
+			If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
+				ActionManualUnTargeting("Medium")
+			EndIf
+			If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
+				ActionManualUnTargeting("Big")
+			EndIf
+			
+			If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
+				Debug("...Targeted NPC Found... ")
+				If CheckEngagement() = False Then
+					Debug("...Targeted NPC Found... engaging ")
+					ActionDronesEngage()
+				EndIf
+			EndIf
+				
+			If CheckSpecificNpc("Small") Then
+				Debug("...Small NPC Found, targeting ")
+				ActionManualTargeting("Small")
+			ElseIf $bIsSmallTargeted = False AND CheckSpecificNpc("Medium") Then
+				Debug("...Medium NPC Found, targeting ")
+				ActionManualTargeting("Medium")
+			ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CheckSpecificNpc("Big") Then
+				Debug("...Big NPC Found, targeting ")
+				ActionManualTargeting("Big")
+			Else
+				; nothing to target
+			EndIf
+WEnd
+Exit	
+#ce
+
+#cs
+While 1
 	Local $x, $y
-	Local $res = _WaitForImageSearch("Images\EngagedBy_Drones.bmp", 1, $ImageSearch_ResultPosition_Center, $x, $y, 4 )
-	Debug($res)
-	If $res>0 Then
-		MouseMove($x, $y)
-	EndIf
-	Sleep(3000)
+	
+	Local $timer = TimerInit()
+
+	Local $bFlagAnyNpc			= CheckNpc()
+	Local $bFlagTargetedNpc		= CheckTargetedNpc()
+	Local $bFlagBigNpc			= CheckSpecificNpc("Big")
+	Local $bFlagMediumNpc		= CheckSpecificNpc("Medium")
+	Local $bFlagSmallNpc		= CheckSpecificNpc("Small")
+	
+	Local $diff = TimerDiff($timer)
+
+	Debug($diff & "          Any: " & $bFlagAnyNpc & "          Targeted: " & $bFlagTargetedNpc & "          Big: " & $bFlagBigNpc & "          Medium: " & $bFlagMediumNpc & "          Small: " & $bFlagSmallNpc)
 WEnd	
 Exit
 #ce
+
+;Exit
 
 ;------------------------------------------------------------------------------
 ; GUI
@@ -137,13 +202,14 @@ Func BountyHunterDirect()
 		; we are not at the safe pos anymore
 		$bAtSafePos = False
 		
-		Local $bNpcPresent = True
 		Local $bPlayerPresenceCheckRequired = True
 		Local $bInitInAnomaly = True
 		
 		Local $timerInAnomaly = TimerInit()
 		
-		; In Anomaly Loop
+		; "In Anomaly" Loop
+		Local $bNpcPresent = True
+		Local $npcPresentTimer = 0
 		While $bNpcPresent
 			Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
 			
@@ -181,9 +247,22 @@ Func BountyHunterDirect()
 			EndIf
 			
 			Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
-			If CheckTargetedNpc() Then
-				Debug("...Targeted NPC Found, engaging " & TimerDiff($timerInAnomaly))
+			Local $bIsSmallTargeted = CheckSpecificTargetedNpc("Small")
+			Local $bIsMediumTargeted = CheckSpecificTargetedNpc("Medium")
+			Local $bIsBigTargeted = CheckSpecificTargetedNpc("Big")
+			
+			; fix targeting that was done by mistake
+			If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
+				ActionManualUnTargeting("Medium")
+			EndIf
+			If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
+				ActionManualUnTargeting("Big")
+			EndIf
+			
+			If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
+				Debug("...Targeted NPC Found... ")
 				If CheckEngagement() = False Then
+					Debug("...Targeted NPC Found... engaging " & TimerDiff($timerInAnomaly))
 					ActionDronesEngage()
 				EndIf
 			EndIf
@@ -191,15 +270,34 @@ Func BountyHunterDirect()
 			If CheckSpecificNpc("Small") Then
 				Debug("...Small NPC Found, targeting " & TimerDiff($timerInAnomaly))
 				ActionManualTargeting("Small")
-			ElseIf CheckSpecificNpc("Medium") Then
+			ElseIf $bIsSmallTargeted = False AND CheckSpecificNpc("Medium") Then
 				Debug("...Medium NPC Found, targeting " & TimerDiff($timerInAnomaly))
 				ActionManualTargeting("Medium")
+			ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CheckSpecificNpc("Big") Then
+				Debug("...Big NPC Found, targeting " & TimerDiff($timerInAnomaly))
+				ActionManualTargeting("Big")
 			Else
-				Debug("...Only Big NPC Found, do nothing " & TimerDiff($timerInAnomaly))
+				; nothing to target
 			EndIf
 			
-			Sleep(1000)
-			$bNpcPresent = CheckNpc()
+			;Sleep(1000)
+			;$bNpcPresent = CheckNpc()
+			
+			; make sure that there is no NPC in site
+			If CheckNpc() = False Then
+				If $npcPresentTimer = 0 Then
+					; first time? - setup a timer
+					$npcPresentTimer = TimerInit()
+				EndIf
+				
+				Local $noNpcDiff = TimerDiff($npcPresentTimer)
+				Debug("No NPC Timer: " & $noNpcDiff)
+				If $noNpcDiff > 30000 Then
+					$bNpcPresent = False
+				EndIf
+			Else
+				$npcPresentTimer = 0
+			EndIf
 		WEnd
 		
 		; scoop drones
@@ -239,11 +337,6 @@ Func CheckPlayerOverview()
 	Return CheckIsAnyPilotInOverview()
 EndFunc
 
-Func CheckSmallNpc()
-	;ActionActivateOverviewTab("Npc")
-	Return CheckIsSmallNpcInOverview()
-EndFunc
-
 Func CheckNpc()
 	;ActionActivateOverviewTab("Npc")
 	Return CheckIsAnyNpcInOverview()
@@ -254,9 +347,13 @@ Func CheckTargetedNpc()
 	Return CheckIsAnyTargetedNpcInOverview()
 EndFunc
 
+Func CheckSpecificTargetedNpc($targetTemplate)
+	Return CheckIsSpecificTargetedNpcInOverview($targetTemplate)
+EndFunc
+
 Func CheckSpecificNpc($targetTemplate)
 	;ActionActivateOverviewTab("Npc")
-	Return CheckIsSpecificNpcInOverview($targetTemplate)
+	Return CheckIsSpecificNotTargetedNpcInOverview($targetTemplate)
 EndFunc
 
 Func CheckEngagement()

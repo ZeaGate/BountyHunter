@@ -492,27 +492,54 @@ Func ActionManualTargeting($targetTemplate)
 	Debug("ActionManualTargeting()...")
 	
 	Local $x, $y
-	Local $res = $ImageSearch_Success
-	Do
-		$res = _WaitForImageSearch("Images\Overview_" & $targetTemplate & "Npc.bmp", 2, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance)
-		If $res = $ImageSearch_Success Then
-			Debug("Target found at " & $x & ", " & $y)
-			; let's target
-			Send("{CTRLDOWN}")
-			RndSleep(500,50)
-			MouseClick("left", $x, $y, 1, RandomizeIt(10,5) )
-			RndSleep(500,50)
-			Send("{CTRLUP}")
-			RndSleep(500,50)			
-		EndIf
-	Until True ; $res = $ImageSearch_Failure	
+	If CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
+		Debug("Target found at " & $x & ", " & $y)
+		; let's target
+		Send("{CTRLDOWN}")
+		RndSleep(500,50)
+		MouseClick("left", $x, $y, 1, RandomizeIt(10,5) )
+		RndSleep(500,50)
+		Send("{CTRLUP}")
+		RndSleep(500,50)			
+	EndIf
 	
 	; move cursor down a bit
 	If $x > 0 Then
-		MouseMove(RandomizeIt($x,4), RandomizeIt($y+200,5), RandomizeIt(10,5) )
+		MouseMove(RandomizeIt($x,4), RandomizeIt($y+400,5), RandomizeIt(10,5) )
 	EndIf
 	
 	Debug("ActionManualTargeting() done")
+EndFunc
+
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func ActionManualUnTargeting($targetTemplate)
+	Debug("ActionManualUnTargeting(" & $targetTemplate & ")...")
+	
+	Local $x, $y
+	
+	If CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
+		Debug("Target found at " & $x & ", " & $y)
+		; let's un-target
+		Send("{CTRLDOWN}")
+		RndSleep(500,50)
+		Send("{SHIFTDOWN}")
+		RndSleep(500,50)
+		MouseClick("left", $x, $y, 1, RandomizeIt(10,5) )
+		RndSleep(500,50)
+		Send("{SHIFTUP}")
+		RndSleep(500,50)
+		Send("{CTRLUP}")
+		RndSleep(500,50)
+	EndIf
+	
+	; move cursor down a bit
+	If $x > 0 Then
+		MouseMove(RandomizeIt($x,4), RandomizeIt($y+400,5), RandomizeIt(10,5) )
+	EndIf
+	
+	Debug("ActionManualUnTargeting() done")
 EndFunc
 
 ;------------------------------------------------------------------------------
