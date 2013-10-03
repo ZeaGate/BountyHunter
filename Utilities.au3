@@ -22,7 +22,8 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func Debug($message = "")
-	ConsoleWrite($message & @CRLF)
+	;ConsoleWrite($message & @CRLF)
+	ToolTip($message, @DesktopWidth/2, @DesktopHeight-20)
 EndFunc
  
 ;------------------------------------------------------------------------------
