@@ -3,7 +3,10 @@
 ;
 ; Bounty Hunter Project
 ; Periodical Checks routines
-;
+; 
+; Code Agreements:
+; Routine name starts from C (i.e. Check)
+; Check should start with ActivateEveWindow() call
 ;------------------------------------------------------------------------------
 
 #include <Globals.au3>
@@ -11,7 +14,57 @@
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func CheckIsMinusInLocal()
+; Zea: done
+Func CIsEveClientRunning()
+	If WinExists("EVE") Then
+		Return True
+	Else
+		Return False
+	EndIf
+EndFunc
+
+; Zea: done
+Func CIsStation()
+	ActivateEveWindow()
+	Return IsImageOnDesktop("Images\WindowHeader_StationServices.bmp")
+EndFunc
+
+; Zea: done
+Func CIsSpace()
+	ActivateEveWindow()
+	Return IsImageOnDesktop("Images\WindowHeader_Overview.bmp")
+EndFunc
+
+Func CIsOnPos()
+	; Note: the Check is based on the idea that close to the SafePos there will be no "Warp to location" context menu command
+	
+	ActivateEveWindow()
+	
+	WindowPeopleAndPlaces($cWindowCommandOpen)
+
+	; locate Station Bookmark
+	Local $x, $y
+	If WaitForImageXY("Images\PeopleAndPlaces_SafePos.bmp", 5, $x, $y) = False Then
+		Die("SafePos bookmark not found");
+	EndIf
+ 
+	; move mouse cursor to that bookmark and make a right mouse click for context menu
+	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
+
+	; locate "Warp to location" in context menu
+	Local $ret = (WaitForImage("Images\ContextMenu_WarpToLocation.bmp", 5) = False)
+	
+	; clean up
+	ClickOnLocalHeader() ; get rid of open context menu
+	WindowPeopleAndPlaces($cWindowCommandClose)
+	
+	Return $ret;
+EndFunc
+
+;------------------------------------------------------------------------------
+;
+;------------------------------------------------------------------------------
+Func CIsLocalRed() ; CheckIsMinusInLocal()
 	Local $x, $y
 	
 	; prepare array with "reds" images

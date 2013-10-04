@@ -4,52 +4,53 @@
 ; Bounty Hunter Project
 ; Action routines
 ;
+; Code Agreements:
+; Routine name starts from A (i.e. Action)
+; Action should start with ActivateEveWindow() call
 ;------------------------------------------------------------------------------
 
-; TODO: review ALL action routines and add "Action" prefix to its name
+
 
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ActionStartEveOnline()
-	Debug("ActionStartEveOnline()...")
+; Zea: done
+Func AStartEve()
+	;Debug("AStartEve()...")
+	
+	; this call here only until all Setting is related to AStartEveOnline()
 	ApplyPersonalSettings()
+	
+	; start Eve Client
 	Run($strEveLauncherPath)
 	
+	; wait for Login button
 	Local $x, $y
-	Local Const $WaitInSeconds = 60
-	
-	Local $res = _WaitForImageSearch("Images\Launcher_LoginButton.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
+	If WaitForImageXY("Images\Launcher_LoginButton.bmp", 60, $x, $y) = False Then
 		Die("Login Failed: Launcher window not found");
 	EndIf
 	
-	RndSleep(1000, 300)
+	; password
+	RndSleep(2000, 300)
 	Send($strPassword)
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
-	Debug("ActionStartEveOnline() done!")
-EndFunc	
 	
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionSelectCharacter()
-	Debug("ActionSelectCharacter()...")
-	Local $x, $y
-	Local Const $WaitInSeconds = 120
+	; click on Login button
+	RndSleep(1000, 300)
+	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
 	
 	; wait for Select Character window
-	Local $res = _WaitForImageSearch("Images\SelectCharacter_EnterGame.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
+	If WaitForImageXY("Images\SelectCharacter_EnterGame.bmp", 120, $x, $y) = False Then
 		Die("Login Failed: Select Character window not found");
 	EndIf
 	
-	RndSleep(1000, 300)
+	; click on button
+	RndSleep(2000, 300)
 	MouseClick("left", RandomizeIt($x,10), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
-	Debug("ActionSelectCharacter() done!")
-EndFunc
-
+	
+	;Debug("AStartEve() done!")
+EndFunc	
+	
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
@@ -90,9 +91,12 @@ EndFunc
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ActionUndockFromTheStation()
-	Debug("ActionUndockFromTheStation()...")
+; Zea: done
+Func AUndock()
+	;Debug("AUndock()...")
+	
 	ActivateEveWindow()
+	
 	; Alt+U
 	Send("{ALTDOWN}")
 	RndSleep(500,50)
@@ -100,15 +104,19 @@ Func ActionUndockFromTheStation()
 	RndSleep(500,50)
 	Send("{ALTUP}")
 	RndSleep(500,50)
-	Debug("ActionUndockFromTheStation() done!")
+	
+	;Debug("AUndock() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ActionStopShip()
-	Debug("ActionStopShip()...")
+; Zea: done
+Func AShipStop()
+	;Debug("AShipStop()...")
+	
 	ActivateEveWindow()
+	
 	; Ctrl+Space
 	Send("{CTRLDOWN}")
 	RndSleep(500,50)
@@ -116,7 +124,8 @@ Func ActionStopShip()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
-	Debug("ActionStopShip() done!")
+	
+	;Debug("AShipStop() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
@@ -274,11 +283,10 @@ Func ActionFindNewAnomaly()
 	;WaitForShipStoppingToComplete()
 EndFunc   
 
-Func ActionWaitForWarpFinished()
-	Debug("ActionWaitForWarpFinished()...")
+Func AWaitForWarpFinished($minimalWaitTime = 0)
+	Debug("AWaitForWarpFinished()...")
 	ActivateEveWindow()
-	;Debug("  wait ~10sec while ship in warp")
-	RndSleep(10000, 1000)
+	Sleep($minimalWaitTime)
 		
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
@@ -303,7 +311,7 @@ Func ActionWaitForWarpFinished()
 		; move mouse cursor to that bookmark and make a right mouse click for context menu
 		MouseClick("right", $bm_x, $bm_y, 1, RandomizeIt(20,5) )
 		
-		If IsImageOnDesktopNow("Images\ContextMenu_WarpToLocation.bmp") Then
+		If IsImageOnDesktop("Images\ContextMenu_WarpToLocation.bmp") Then
 			Debug("Warp Finished!")
 			$bFound = True
 			ExitLoop
@@ -317,18 +325,20 @@ Func ActionWaitForWarpFinished()
 	WindowPeopleAndPlaces($cWindowCommandClose)
 	
 	If $bFound = False Then
-		Die("ActionWaitForWarpFinished failed")
+		Die("AWaitForWarpFinished failed")
 	EndIf	
 	
-	Debug("ActionWaitForWarpFinished() done!")
+	Debug("AWaitForWarpFinished() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ActionTurnTankOn()
-	Debug("ActionTurnTankOn()...")
+Func ATankEnable()
+	;Debug("ATankEnable()...")
+	
 	ActivateEveWindow()
+	
 	; Ctrl+F1, Ctrl+F2, Ctrl+F3, Ctrl+F4
 	Send("{CTRLDOWN}")
 	RndSleep(500,50)
@@ -342,15 +352,18 @@ Func ActionTurnTankOn()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
-	Debug("ActionTurnTankOn() done!")
+	
+	;Debug("ATankEnable() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func ActionPrepareDroneWindow()
-	Debug("ActionPrepareDroneWindow()...")
+Func APrepareDroneWindow()
+	;Debug("APrepareDroneWindow()...")
+	
 	ActivateEveWindow()	
+	
 	MoveMouseToTheParkingSpot()
 	
 	Local $x, $y
@@ -378,18 +391,18 @@ Func ActionPrepareDroneWindow()
 	EndIf
 	
 	; self check
-	Local $resInBay 	= IsImageOnDesktopNow("Images\Drones_DronesInBayOpen.bmp")
+	Local $resInBay 	= IsImageOnDesktop("Images\Drones_DronesInBayOpen.bmp")
 	Debug("$resInBay=" & $resInBay)
-	Local $resInSpace 	= IsImageOnDesktopNow("Images\Drones_DronesInLocalSpaceOpen.bmp")
+	Local $resInSpace 	= IsImageOnDesktop("Images\Drones_DronesInLocalSpaceOpen.bmp")
 	Debug("$resInSpace=" & $resInSpace)
-	Local $resSentryEm 	= IsImageOnDesktopNow("Images\Drones_SentryEmOpen.bmp")
+	Local $resSentryEm 	= IsImageOnDesktop("Images\Drones_SentryEmOpen.bmp")
 	Debug("$resSentryEm=" & $resSentryEm)
 	
 	If Not ($resInBay AND $resInSpace AND $resSentryEm) Then
-		Beep()
+		Die("Drone Window Self Check Failed")
 	EndIf	
 	
-	Debug("ActionPrepareDroneWindow() done!")
+	;Debug("APrepareDroneWindow() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------

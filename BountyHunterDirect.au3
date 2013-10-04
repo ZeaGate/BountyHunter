@@ -13,86 +13,9 @@
 #include <Windows.au3>
 #include <PersonalConfiguration.au3>
 
+; AutoIt includes
 #include <GUIConstantsEx.au3>
 #include <ImageSearch.au3>
-
-#cs
-While 1
-CheckIsSpecificNpcInOverview("Big")
-Sleep(500)
-CheckIsSpecificNpcInOverview("Medium")
-Sleep(500)
-CheckIsSpecificNpcInOverview("Small")
-Sleep(500)
-WEnd
-#ce
-
-;Sleep(2000)
-;CheckSpecificTargetedNpc("Big")
-;Sleep(2000)
-;ActionManualUnTargeting("Big")
-;Exit
-
-#cs
-While 1
-			Local $bIsSmallTargeted = CheckSpecificTargetedNpc("Small")
-			Local $bIsMediumTargeted = CheckSpecificTargetedNpc("Medium")
-			Local $bIsBigTargeted = CheckSpecificTargetedNpc("Big")
-			;Debug("Big: " & $bIsBigTargeted & "          Medium: " & $bIsMediumTargeted & "          Small: " & $bIsSmallTargeted)
-			;Sleep(1000)
-			
-			; fix targeting that was done by mistake
-			If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
-				ActionManualUnTargeting("Medium")
-			EndIf
-			If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
-				ActionManualUnTargeting("Big")
-			EndIf
-			
-			If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
-				Debug("...Targeted NPC Found... ")
-				If CheckEngagement() = False Then
-					Debug("...Targeted NPC Found... engaging ")
-					ActionDronesEngage()
-				EndIf
-			EndIf
-				
-			If CheckSpecificNpc("Small") Then
-				Debug("...Small NPC Found, targeting ")
-				ActionManualTargeting("Small")
-			ElseIf $bIsSmallTargeted = False AND CheckSpecificNpc("Medium") Then
-				Debug("...Medium NPC Found, targeting ")
-				ActionManualTargeting("Medium")
-			ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CheckSpecificNpc("Big") Then
-				Debug("...Big NPC Found, targeting ")
-				ActionManualTargeting("Big")
-			Else
-				; nothing to target
-			EndIf
-WEnd
-Exit	
-#ce
-
-#cs
-While 1
-	Local $x, $y
-	
-	Local $timer = TimerInit()
-
-	Local $bFlagAnyNpc			= CheckNpc()
-	Local $bFlagTargetedNpc		= CheckTargetedNpc()
-	Local $bFlagBigNpc			= CheckSpecificNpc("Big")
-	Local $bFlagMediumNpc		= CheckSpecificNpc("Medium")
-	Local $bFlagSmallNpc		= CheckSpecificNpc("Small")
-	
-	Local $diff = TimerDiff($timer)
-
-	Debug($diff & "          Any: " & $bFlagAnyNpc & "          Targeted: " & $bFlagTargetedNpc & "          Big: " & $bFlagBigNpc & "          Medium: " & $bFlagMediumNpc & "          Small: " & $bFlagSmallNpc)
-WEnd	
-Exit
-#ce
-
-;Exit
 
 ;------------------------------------------------------------------------------
 ; GUI
@@ -103,86 +26,36 @@ GUICreate("Bounty Hunter", 300, 400)
 GUISetOnEvent($GUI_EVENT_CLOSE, "OnClose")
 GUISetState(@SW_SHOW)
 
-Global $bExitFlag = False
-Global $bAtSafePos = False
-
+;------------------------------------------------------------------------------
+; GUI Event Processing
+;------------------------------------------------------------------------------
 Func OnClose()
 	Debug("OnClose() event")
-	;$bExitFlag = True;
 	Exit
 EndFunc
-
+;------------------------------------------------------------------------------
+; Global Flags
+;------------------------------------------------------------------------------
+Global $bAtSafePos = False
 
 ;------------------------------------------------------------------------------
-;
+; Entry Point
 ;------------------------------------------------------------------------------
-BountyHunterDirect()
 
-Func BountyHunterDirect()
-	Debug("BountyHunterDirect() Started")
-	MsgBox(0, "GUI Event", "You will have 10 seconds to move BH GUI")
-	Sleep(10000)
+; placeholder for small debug routines 
+Main()
+Exit
+
+Func Main()
+	Debug("BountyHunter() Started")
+	MsgBox(0, "GUI Event", "You will have 5 seconds to move BH GUI")
+	Sleep(5000)
 	
-	If bIsEveClientRunning() = True Then
-		Debug("Eve Client is Running already. Connecting...")
-		ActivateEveWindow()
-	Else
-		ActionStartEveOnline()
-		ActionSelectCharacter()
-	EndIf
-	
-	; make sure that we are docked in station
-	Debug("Wait for Station Environment...")
-	If WaitForImage("Images\WindowHeader_StationServices.bmp", 60) = True Then
-		Debug("Station Confirmed!")
-	Else
-		Die("We are not docked at the Station?")
-	EndIf	
-	
-	; check local
-	WaitForClearLocal()
-	
-	; undock
-	ActionUndockFromTheStation()
-	
-	; confirm that we are in space
-	Debug("Wait for Space...")
-	If WaitForImage("Images\WindowHeader_Drones.bmp", 30) = True Then
-		Debug("Space Confirmed!")
-	Else
-		Die("We are not in Space?")
-	EndIf	
-		
-	; stop ship
-	ActionStopShip()
-	
-	Local $bInitInSpace = True
-	
-	; New Task Loop
-	While $bExitFlag = False
+	Initialization()
+
+	; Main Loop aka "New Task Loop"
+	While True ; consider end of loop condition / variable / flag
 		Debug("New Task Loop: iteration started")
-		
-		Local $bLocalIsRed = CheckLocal()
-		If $bLocalIsRed = True Then
-			Debug("Red in local!")
-			Evacuation()
-			WaitForClearLocal()
-			ContinueLoop
-		EndIf
-		
-		; initialization
-		If $bInitInSpace = True Then
-			Debug("In Space Initialization...")
-			
-			; enable tank
-			ActionTurnTankOn()
-			
-			; prepare drone window
-			ActionPrepareDroneWindow()
-			
-			Debug("In Space Initialization done!")
-			$bInitInSpace = False
-		EndIf
 		
 		; find new anomaly
 		If ActionFindNewAnomaly() = False Then
@@ -197,7 +70,7 @@ Func BountyHunterDirect()
 		EndIf
 		
 		; wait for warp in
-		ActionWaitForWarpFinished()
+		AWaitForWarpFinished(10000)
 		
 		; we are not at the safe pos anymore
 		$bAtSafePos = False
@@ -205,21 +78,14 @@ Func BountyHunterDirect()
 		Local $bPlayerPresenceCheckRequired = True
 		Local $bInitInAnomaly = True
 		
-		Local $timerInAnomaly = TimerInit()
 		
-		; "In Anomaly" Loop
-		Local $bNpcPresent = True
-		Local $npcPresentTimer = 0
-		While $bNpcPresent
-			Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
-			
-			Local $bLocalIsRed = CheckLocal()
+			Local $bLocalIsRed = CIsLocalRed()
 			If $bLocalIsRed = True Then
 				Debug("Red in local!")
 				ActionScoopDrones()
 				Evacuation()
 				WaitForClearLocal()
-				ContinueLoop 2
+				ContinueLoop 1
 			EndIf
 			
 			If $bPlayerPresenceCheckRequired = True Then
@@ -244,7 +110,26 @@ Func BountyHunterDirect()
 				ActionLaunchSentryEm()
 				
 				$bInitInAnomaly = False
+			EndIf		
+		
+		
+		Local $timerInAnomaly = TimerInit()
+		
+		; "In Anomaly" Loop
+		Local $bNpcPresent = True
+		Local $npcPresentTimer = 0
+		While $bNpcPresent
+			Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
+			
+			Local $bLocalIsRed = CIsLocalRed()
+			If $bLocalIsRed = True Then
+				Debug("Red in local!")
+				ActionScoopDrones()
+				Evacuation()
+				WaitForClearLocal()
+				ContinueLoop 2
 			EndIf
+			
 			
 			Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
 			Local $bIsSmallTargeted = CheckSpecificTargetedNpc("Small")
@@ -307,13 +192,94 @@ Func BountyHunterDirect()
 	WEnd
 EndFunc
 
-Func WaitForClearLocal()
+;------------------------------------------------------------------------------
+; Initialize 
+;------------------------------------------------------------------------------
+Func Initialization()
+	; There can be next "Starting Point":
+	; - No Client
+	; - Docked on Station
+	; - In Space
+	
+	; Do we have running Eve Client already?
+	If CIsEveClientRunning() = False Then
+		AStartEve()
+	EndIf
+	
+	ActivateEveWindow()
+	
+	; We can be on Station or in Space
+	Local $timer = TimerInit();
+	Local $bStation = False
+	Local $bSpace = False
+	
+	While TimerDiff($timer) < 60000
+		$bStation = CIsStation()
+		$bSpace = CIsSpace()
+		
+		If $bStation OR $bSpace Then
+			ExitLoop
+		EndIf
+	WEnd
+	
+	If (NOT $bStation) AND (NOT $bSpace) Then
+		Die("Station or Space not found!")
+	EndIf
+		
+	If $bStation = True Then
+		Debug("Station Confirmed!")
+		
+		; make sure that local is friendly
+		WaitForClearLocal()
+		
+		AUndock()
+		
+		If WaitForUndock() = True Then
+			Debug("Undock Confirmed!")
+		Else
+			Die("Undock failed!")
+		EndIf	
+		
+		; stop ship
+		AShipStop()
+	EndIf
+	
+	If $bSpace = True Then
+		Debug("Space Confirmed!")
+		
+		AWaitForWarpFinished(0)
+		
+		$bAtSafePos = CIsOnPos()
+		If $bAtSafePos = False Then
+			Evacuation()
+		EndIf
+	EndIf
+	
+	InitializationInSpace()
+EndFunc
+	
+Func InitializationInSpace()
+	If CIsLocalRed() = True Then
+		Evacuation()
+		WaitForClearLocal()
+	EndIf
+		
+	ATankEnable()
+	APrepareDroneWindow()
+EndFunc
+
+Func WaitForClearLocal() ; move to actions
 	Debug("Wait for clear local...")
-	While CheckLocal() = True
+	While CIsLocalRed() = True
 		Debug("... still waiting")
 		Sleep(60000)
 	WEnd
 	Debug("Local is clear!")
+EndFunc
+
+Func WaitForUndock() ; move to actions
+	Debug("Wait for Undock...")
+	Return WaitForImage("Images\WindowHeader_Overview.bmp", 30)
 EndFunc
 
 Func Evacuation()
@@ -321,16 +287,14 @@ Func Evacuation()
 	
 	If $bAtSafePos = False Then
 		ActionWarpToSafePos()
-		ActionWaitForWarpFinished()
+		AWaitForWarpFinished(0)
 		$bAtSafePos = True
 	EndIf
 	
 	Debug("Evacuation() done!")
 EndFunc
 
-Func CheckLocal() 
-	Return CheckIsMinusInLocal()
-EndFunc
+
 
 Func CheckPlayerOverview()
 	;ActionActivateOverviewTab("Pilots")

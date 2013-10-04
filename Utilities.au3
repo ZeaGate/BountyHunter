@@ -22,7 +22,7 @@ EndFunc
 ;
 ;------------------------------------------------------------------------------
 Func Debug($message = "")
-	;ConsoleWrite($message & @CRLF)
+	ConsoleWrite($message & @CRLF)
 	ToolTip($message, @DesktopWidth/2, @DesktopHeight-20)
 EndFunc
  
@@ -39,24 +39,17 @@ EndFunc
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
+; Zea: done
 Func RndSleep($delay, $delta)
 	Sleep(RandomizeIt($delay, $delta))
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func bIsEveClientRunning()
-	If WinExists("EVE") Then
-		Return True
-	Else
-		Return False
-	EndIf
-EndFunc
+
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
+; Zea: done
 Func ActivateEveWindow()
 	If NOT WinActive("EVE") Then
 		Sleep(5000) ; give me some time, please
@@ -100,7 +93,8 @@ EndFunc
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func IsImageOnDesktopNow($image)
+; Zea: done
+Func IsImageOnDesktop($image)
 	Local $x, $y
 	
 	Local $res = _ImageSearch($image, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
@@ -114,9 +108,15 @@ EndFunc
 ;------------------------------------------------------------------------------
 ; Returns True if $image was found on desktop within $waitInSeconds
 ;------------------------------------------------------------------------------
+; Zea: done
 Func WaitForImage($image, $waitInSeconds)
 	Local $x, $y
-	$res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
+	Return WaitForImageXY($image, $waitInSeconds, $x, $y)
+EndFunc
+
+; Zea: done
+Func WaitForImageXY($image, $waitInSeconds, ByRef $x, ByRef $y)
+	Local $res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Failure Then
 		Return False
 	Else
@@ -134,7 +134,7 @@ Func WaitForImageGone($image, $waitInSeconds)
 	Local $diff = TimerDiff($timer)
 	
 	While $bFound = True AND $diff < $allowedTime
-		$bFound = IsImageOnDesktopNow($image)
+		$bFound = IsImageOnDesktop($image)
 		$diff = TimerDiff($timer)
 		
 		Debug("WaitForImageGone(): " & $image & " " & $diff & " " & $bFound)
