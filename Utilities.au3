@@ -107,7 +107,10 @@ EndFunc
 
 Func IsAnyImageOnDesktop($arrImages)
 	Local $x, $y
+	Return IsAnyImageOnDesktop_XY($arrImages, $x, $y)
+EndFunc
 
+Func IsAnyImageOnDesktop_XY($arrImages, ByRef $x, ByRef $y)
 	If _ImagesSearch($arrImages, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) > $ImageSearch_Failure Then
 		Return True
 	Else

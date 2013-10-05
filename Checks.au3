@@ -11,7 +11,6 @@
 
 #include <Globals.au3>
 
-; Zea: done
 Func CIsEveClientRunning()
 	If WinExists("EVE") Then
 		Return True
@@ -20,13 +19,11 @@ Func CIsEveClientRunning()
 	EndIf
 EndFunc
 
-; Zea: done
 Func CIsStation()
 	ActivateEveWindow()
 	Return IsImageOnDesktop("Images\WindowHeader_StationServices.bmp")
 EndFunc
 
-; Zea: done
 Func CIsSpace()
 	ActivateEveWindow()
 	Return IsImageOnDesktop("Images\WindowHeader_Overview.bmp")
@@ -87,9 +84,6 @@ Func CIsAnyPilotInOverview()
 	Return IsAnyImageOnDesktop($ships)
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func CIsAnyNpcInOverview()
 	; prepare array with NPC ships images
 	Local $npc[19] ; size + munber of images
@@ -134,7 +128,7 @@ Func CIsSpecificTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	
 	ActivateEveWindow()
 	
-	Return IsAnyImageOnDesktop($npc)
+	Return IsAnyImageOnDesktop_XY($npc, $x, $y)
 EndFunc
 
 Func CIsSpecificNotTargetedNpcInOverview($targetTemplate)
@@ -151,7 +145,7 @@ Func CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	
 	ActivateEveWindow()
 	
-	Return IsAnyImageOnDesktop($npc)
+	Return IsAnyImageOnDesktop_XY($npc, $x, $y)
 EndFunc
 
 Func CIsActiveEngagement()
