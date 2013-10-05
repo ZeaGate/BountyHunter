@@ -70,49 +70,33 @@ Func Main()
 		EndIf
 		
 		; wait for warp in
-		AWaitForWarpFinished(10000)
+		AWaitForWarpFinished(10000)				
 		
 		; we are not at the safe pos anymore
 		$bAtSafePos = False
 		
-		Local $bPlayerPresenceCheckRequired = True
-		Local $bInitInAnomaly = True
-		
-		
-			Local $bLocalIsRed = CIsLocalRed()
-			If $bLocalIsRed = True Then
-				Debug("Red in local!")
-				ActionScoopDrones()
-				Evacuation()
-				WaitForClearLocal()
-				ContinueLoop 1
-			EndIf
+		If CIsLocalRed() = True Then
+			Debug("New Task Loop: Red in local!")
+			ActionScoopDrones()
+			Evacuation()
+			WaitForClearLocal()
+			ContinueLoop
+		EndIf
+	
+		; check if anomaly is pre-ocupied 
+		ActionActivateOverviewTab("Pilots")
+		If CheckPlayerOverview() = True Then
+			Debug("Anomaly is occupied!")
+			Evacuation()
+			WaitForClearLocal()
+			ContinueLoop
+		EndIf
+				
+		ActionActivateOverviewTab("Npc")
 			
-			If $bPlayerPresenceCheckRequired = True Then
-				ActionActivateOverviewTab("Pilots")
-				Local $bPlayerPresent = CheckPlayerOverview()
-				If $bPlayerPresent = True Then
-					Debug("Anomaly is occupied!")
-					Evacuation()
-					WaitForClearLocal()
-					ContinueLoop 2
-				EndIf
-				
-				ActionActivateOverviewTab("Npc")
-				$bPlayerPresenceCheckRequired = False
-			EndIf
+		; deploy sentries
+		ActionLaunchSentryEm()
 			
-			; initialization
-			If $bInitInAnomaly = True Then
-				Debug("In Anomaly: Initialization")
-				
-				; deploy sentries
-				ActionLaunchSentryEm()
-				
-				$bInitInAnomaly = False
-			EndIf		
-		
-		
 		Local $timerInAnomaly = TimerInit()
 		
 		; "In Anomaly" Loop
@@ -196,11 +180,6 @@ EndFunc
 ; Initialize 
 ;------------------------------------------------------------------------------
 Func Initialization()
-	; There can be next "Starting Point":
-	; - No Client
-	; - Docked on Station
-	; - In Space
-	
 	; Do we have running Eve Client already?
 	If CIsEveClientRunning() = False Then
 		AStartEve()
@@ -260,6 +239,7 @@ EndFunc
 	
 Func InitializationInSpace()
 	If CIsLocalRed() = True Then
+		Debug("InitializationInSpace(): Red in local!")
 		Evacuation()
 		WaitForClearLocal()
 	EndIf
