@@ -505,7 +505,7 @@ Func ActionManualTargeting($targetTemplate)
 	Debug("ActionManualTargeting()...")
 	
 	Local $x, $y
-	If CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
+	If CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
 		Debug("Target found at " & $x & ", " & $y)
 		; let's target
 		Send("{CTRLDOWN}")
@@ -532,7 +532,7 @@ Func ActionManualUnTargeting($targetTemplate)
 	
 	Local $x, $y
 	
-	If CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
+	If CIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
 		Debug("Target found at " & $x & ", " & $y)
 		; let's un-target
 		Send("{CTRLDOWN}")

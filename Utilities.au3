@@ -105,6 +105,17 @@ Func IsImageOnDesktop($image)
 	Return False
 EndFunc
 
+Func IsAnyImageOnDesktop($arrImages)
+	Local $x, $y
+
+	If _ImagesSearch($arrImages, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) > $ImageSearch_Failure Then
+		Return True
+	Else
+		Return False	
+	EndIf
+EndFunc
+
+
 ;------------------------------------------------------------------------------
 ; Returns True if $image was found on desktop within $waitInSeconds
 ;------------------------------------------------------------------------------

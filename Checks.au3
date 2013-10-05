@@ -11,9 +11,6 @@
 
 #include <Globals.au3>
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 ; Zea: done
 Func CIsEveClientRunning()
 	If WinExists("EVE") Then
@@ -36,7 +33,8 @@ Func CIsSpace()
 EndFunc
 
 Func CIsOnPos()
-	; Note: the Check is based on the idea that close to the SafePos there will be no "Warp to location" context menu command
+	; Note: the Check is based on the idea 
+	; that close to the SafePos there will be no "Warp to location" context menu command
 	
 	ActivateEveWindow()
 	
@@ -61,12 +59,7 @@ Func CIsOnPos()
 	Return $ret;
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func CIsLocalRed() ; CheckIsMinusInLocal()
-	Local $x, $y
-	
+Func CIsLocalRed()
 	; prepare array with "reds" images
 	Local $minuses[5] ; size + munber of images
 	$minuses[0] = 4 ; number of images
@@ -77,21 +70,10 @@ Func CIsLocalRed() ; CheckIsMinusInLocal()
 	
 	ActivateEveWindow()
 	
-	; locate
-	Local $res = _ImagesSearch($minuses, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Return True
-	EndIf
-	
-	Return False
+	Return IsAnyImageOnDesktop($minuses)
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func CheckIsAnyPilotInOverview()
-	Local $x, $y
-	
+Func CIsAnyPilotInOverview()
 	; prepare array with player ships images
 	Local $ships[5] ; size + munber of images
 	$ships[0] = 4 ; number of images
@@ -102,21 +84,13 @@ Func CheckIsAnyPilotInOverview()
 	
 	ActivateEveWindow()
 	
-	; locate
-	Local $res = _ImagesSearch($ships, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Return True
-	EndIf
-	
-	Return False
+	Return IsAnyImageOnDesktop($ships)
 EndFunc
 
 ;------------------------------------------------------------------------------
 ;
 ;------------------------------------------------------------------------------
-Func CheckIsAnyNpcInOverview()
-	Local $x, $y
-	
+Func CIsAnyNpcInOverview()
 	; prepare array with NPC ships images
 	Local $npc[19] ; size + munber of images
 	$npc[0] = 18 ; number of images
@@ -141,52 +115,15 @@ Func CheckIsAnyNpcInOverview()
 	
 	ActivateEveWindow()
 	
-	; locate
-	Local $res = _WaitForImagesSearch($npc, 1, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		;Debug("CheckIsAnyNpcInOverview(): " & $npc[$res] & " was found!")
-		Return True
-	EndIf
-	
-	Return False
+	Return IsAnyImageOnDesktop($npc)
 EndFunc
 
-Func CheckIsAnyTargetedNpcInOverview()
+Func CIsSpecificTargetedNpcInOverview($targetTemplate)
 	Local $x, $y
-	
-	; prepare array with NPC ships images
-	Local $npc[13] ; size + munber of images
-	$npc[0] = 12 ; number of images
-	$npc[1] = "Images\Overview_NpcBigSelectedFalseTargetedActive.bmp"
-	$npc[2] = "Images\Overview_NpcBigSelectedFalseTargetedPassive.bmp"
-	$npc[3] = "Images\Overview_NpcBigSelectedTrueTargetedActive.bmp"
-	$npc[4] = "Images\Overview_NpcBigSelectedTrueTargetedPassive.bmp"
-	$npc[5] = "Images\Overview_NpcMediumSelectedFalseTargetedActive.bmp"
-	$npc[6] = "Images\Overview_NpcMediumSelectedFalseTargetedPassive.bmp"
-	$npc[7] = "Images\Overview_NpcMediumSelectedTrueTargetedActive.bmp"
-	$npc[8] = "Images\Overview_NpcMediumSelectedTrueTargetedPassive.bmp"
-	$npc[9] = "Images\Overview_NpcSmallSelectedFalseTargetedActive.bmp"
-	$npc[10] = "Images\Overview_NpcSmallSelectedFalseTargetedPassive.bmp"
-	$npc[11] = "Images\Overview_NpcSmallSelectedTrueTargetedActive.bmp"
-	$npc[12] = "Images\Overview_NpcSmallSelectedTrueTargetedPassive.bmp"
-	
-	ActivateEveWindow()
-	
-	; locate
-	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Return True
-	EndIf
-	
-	Return False
-EndFunc
- 
-Func CheckIsSpecificTargetedNpcInOverview($targetTemplate)
-	Local $x, $y
-	return CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y)
+	return CIsSpecificTargetedNpcInOverview_XY($targetTemplate, $x, $y)
 EndFunc	
 
-Func CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
+Func CIsSpecificTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	; prepare array with NPC ships images
 	Local $npc[5] ; size + munber of images
 	$npc[0] = 4 ; number of images
@@ -197,23 +134,15 @@ Func CheckIsSpecificTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y
 	
 	ActivateEveWindow()
 	
-	; locate
-	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Debug("CheckIsSpecificTargetedNpcInOverview(): " & $npc[$res] & " was found!")
-		Return True
-	EndIf
-	
-	Debug("CheckIsSpecificTargetedNpcInOverview(): " & $targetTemplate & " was NOT found!")
-	Return False
+	Return IsAnyImageOnDesktop($npc)
 EndFunc
 
-Func CheckIsSpecificNotTargetedNpcInOverview($targetTemplate)
+Func CIsSpecificNotTargetedNpcInOverview($targetTemplate)
 	Local $x, $y
-	Return CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y)
+	Return CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y)
 EndFunc
 
-Func CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
+Func CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	; prepare array with NPC ships images
 	Local $npc[3] ; size + munber of images
 	$npc[0] = 2 ; number of images
@@ -222,35 +151,18 @@ Func CheckIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef
 	
 	ActivateEveWindow()
 	
-	; locate
-	Local $res = _ImagesSearch($npc, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Debug("CheckIsSpecificNotTargetedNpcInOverview(): " & $npc[$res] & " was found!")
-		Return True
-	EndIf
-	
-	Debug("CheckIsSpecificNotTargetedNpcInOverview(): " & $targetTemplate & " was NOT found!")
-	Return False
+	Return IsAnyImageOnDesktop($npc)
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func CheckIsDroneTakesDamage()
-	Return False
-EndFunc
-
-Func CheckIsActiveEngagement()
+Func CIsActiveEngagement()
 	Local $x, $y
 	
 	ActivateEveWindow()
-	
-	; locate
-	Local $res = _ImageSearch("Images\EngagedBy_Drones.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res > $ImageSearch_Failure Then
-		Return True
-	EndIf
-	
+	Return IsImageOnDesktop("Images\EngagedBy_Drones.bmp")
+EndFunc
+
+Func CIsDroneTakesDamage()
+	Die("CIsDroneTakesDamage() not implemented")
 	Return False
 EndFunc
 

@@ -57,103 +57,35 @@ Func Main()
 	While True ; consider end of loop condition / variable / flag
 		Debug("New Task Loop: iteration started")
 		
-		; find new anomaly
-		If ActionFindNewAnomaly() = False Then
-			Debug("No Anomaly Found...")
-
-			; warp to safe pos
-			Evacuation()
-				
-			Debug("Waiting at Safe Pos...")
-			Sleep(60000)
+		If TryGetIntoNewAnomaly() = False Then
 			ContinueLoop
 		EndIf
 		
-		; wait for warp in
-		AWaitForWarpFinished(10000)				
-		
-		; we are not at the safe pos anymore
-		$bAtSafePos = False
-		
-		If CIsLocalRed() = True Then
-			Debug("New Task Loop: Red in local!")
-			ActionScoopDrones()
-			Evacuation()
-			WaitForClearLocal()
-			ContinueLoop
-		EndIf
-	
-		; check if anomaly is pre-ocupied 
-		ActionActivateOverviewTab("Pilots")
-		If CheckPlayerOverview() = True Then
-			Debug("Anomaly is occupied!")
-			Evacuation()
-			WaitForClearLocal()
-			ContinueLoop
-		EndIf
-				
-		ActionActivateOverviewTab("Npc")
-			
 		; deploy sentries
 		ActionLaunchSentryEm()
-			
+		
 		Local $timerInAnomaly = TimerInit()
 		
 		; "In Anomaly" Loop
 		Local $bNpcPresent = True
 		Local $npcPresentTimer = 0
+		
 		While $bNpcPresent
 			Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
 			
 			Local $bLocalIsRed = CIsLocalRed()
 			If $bLocalIsRed = True Then
-				Debug("Red in local!")
+				Debug("In Anomaly Loop: Red in local!")
 				ActionScoopDrones()
 				Evacuation()
 				WaitForClearLocal()
 				ContinueLoop 2
 			EndIf
 			
-			
-			Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
-			Local $bIsSmallTargeted = CheckSpecificTargetedNpc("Small")
-			Local $bIsMediumTargeted = CheckSpecificTargetedNpc("Medium")
-			Local $bIsBigTargeted = CheckSpecificTargetedNpc("Big")
-			
-			; fix targeting that was done by mistake
-			If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
-				ActionManualUnTargeting("Medium")
-			EndIf
-			If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
-				ActionManualUnTargeting("Big")
-			EndIf
-			
-			If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
-				Debug("...Targeted NPC Found... ")
-				If CheckEngagement() = False Then
-					Debug("...Targeted NPC Found... engaging " & TimerDiff($timerInAnomaly))
-					ActionDronesEngage()
-				EndIf
-			EndIf
-				
-			If CheckSpecificNpc("Small") Then
-				Debug("...Small NPC Found, targeting " & TimerDiff($timerInAnomaly))
-				ActionManualTargeting("Small")
-			ElseIf $bIsSmallTargeted = False AND CheckSpecificNpc("Medium") Then
-				Debug("...Medium NPC Found, targeting " & TimerDiff($timerInAnomaly))
-				ActionManualTargeting("Medium")
-			ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CheckSpecificNpc("Big") Then
-				Debug("...Big NPC Found, targeting " & TimerDiff($timerInAnomaly))
-				ActionManualTargeting("Big")
-			Else
-				; nothing to target
-			EndIf
-			
-			;Sleep(1000)
-			;$bNpcPresent = CheckNpc()
+			ManualTargeting()
 			
 			; make sure that there is no NPC in site
-			If CheckNpc() = False Then
+			If CIsAnyNpcInOverview() = False Then
 				If $npcPresentTimer = 0 Then
 					; first time? - setup a timer
 					$npcPresentTimer = TimerInit()
@@ -248,6 +180,85 @@ Func InitializationInSpace()
 	APrepareDroneWindow()
 EndFunc
 
+Func TryGetIntoNewAnomaly()
+	; find new anomaly
+	If ActionFindNewAnomaly() = False Then
+		Debug("No Anomaly Found...")
+
+		; warp to safe pos
+		Evacuation()
+				
+		Debug("Waiting at Safe Pos...")
+		Sleep(60000)
+			
+		Return False
+	EndIf
+		
+	; wait for warp in
+	AWaitForWarpFinished(10000)				
+		
+	; we are not at the safe pos anymore
+	$bAtSafePos = False
+		
+	If CIsLocalRed() = True Then
+		Debug("New Task Loop: Red in local!")
+		ActionScoopDrones()
+		Evacuation()
+		WaitForClearLocal()
+			
+		Return False
+	EndIf
+	
+	; check if anomaly is pre-ocupied 
+	ActionActivateOverviewTab("Pilots")
+	If CIsAnyPilotInOverview() = True Then
+		Debug("Anomaly is occupied!")
+		Evacuation()
+		WaitForClearLocal()
+			
+		Return False
+	EndIf
+	ActionActivateOverviewTab("Npc")
+			
+	Return True	
+EndFunc
+
+Func ManualTargeting()
+	Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
+	Local $bIsSmallTargeted = 	CIsSpecificTargetedNpcInOverview("Small")
+	Local $bIsMediumTargeted = 	CIsSpecificTargetedNpcInOverview("Medium")
+	Local $bIsBigTargeted = 	CIsSpecificTargetedNpcInOverview("Big")
+
+	; fix targeting that was done by mistake
+	If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
+		ActionManualUnTargeting("Medium")
+	EndIf
+	If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
+		ActionManualUnTargeting("Big")
+	EndIf
+			
+	If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
+		Debug("...Targeted NPC Found... ")
+		If CIsActiveEngagement() = False Then
+			Debug("...Targeted NPC Found... engaging " & TimerDiff($timerInAnomaly))
+			ActionDronesEngage()
+		EndIf
+	EndIf
+				
+	If CIsSpecificNotTargetedNpcInOverview("Small") Then
+		Debug("...Small NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		ActionManualTargeting("Small")
+	ElseIf $bIsSmallTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Medium") Then
+		Debug("...Medium NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		ActionManualTargeting("Medium")
+	ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Big") Then
+		Debug("...Big NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		ActionManualTargeting("Big")
+	Else
+		; nothing to target
+	EndIf
+EndFunc
+
 Func WaitForClearLocal() ; move to actions
 	Debug("Wait for clear local...")
 	While CIsLocalRed() = True
@@ -272,36 +283,6 @@ Func Evacuation()
 	EndIf
 	
 	Debug("Evacuation() done!")
-EndFunc
-
-
-
-Func CheckPlayerOverview()
-	;ActionActivateOverviewTab("Pilots")
-	Return CheckIsAnyPilotInOverview()
-EndFunc
-
-Func CheckNpc()
-	;ActionActivateOverviewTab("Npc")
-	Return CheckIsAnyNpcInOverview()
-EndFunc
-
-Func CheckTargetedNpc()
-	;ActionActivateOverviewTab("Npc")
-	Return CheckIsAnyTargetedNpcInOverview()
-EndFunc
-
-Func CheckSpecificTargetedNpc($targetTemplate)
-	Return CheckIsSpecificTargetedNpcInOverview($targetTemplate)
-EndFunc
-
-Func CheckSpecificNpc($targetTemplate)
-	;ActionActivateOverviewTab("Npc")
-	Return CheckIsSpecificNotTargetedNpcInOverview($targetTemplate)
-EndFunc
-
-Func CheckEngagement()
-	Return CheckIsActiveEngagement()
 EndFunc
 
 ;------------------------------------------------------------------------------
