@@ -224,7 +224,7 @@ Func TryGetIntoNewAnomaly()
 EndFunc
 
 Func ManualTargeting()
-	Debug("Before Manual ""Switch"": " & TimerDiff($timerInAnomaly))
+	Debug("Before Manual ""Switch"": ")
 	Local $bIsSmallTargeted = 	CIsSpecificTargetedNpcInOverview("Small")
 	Local $bIsMediumTargeted = 	CIsSpecificTargetedNpcInOverview("Medium")
 	Local $bIsBigTargeted = 	CIsSpecificTargetedNpcInOverview("Big")
@@ -240,19 +240,19 @@ Func ManualTargeting()
 	If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
 		Debug("...Targeted NPC Found... ")
 		If CIsActiveEngagement() = False Then
-			Debug("...Targeted NPC Found... engaging " & TimerDiff($timerInAnomaly))
+			Debug("...Targeted NPC Found... engaging ")
 			ActionDronesEngage()
 		EndIf
 	EndIf
 				
 	If CIsSpecificNotTargetedNpcInOverview("Small") Then
-		Debug("...Small NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		Debug("...Small NPC Found, targeting ")
 		ActionManualTargeting("Small")
 	ElseIf $bIsSmallTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Medium") Then
-		Debug("...Medium NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		Debug("...Medium NPC Found, targeting ")
 		ActionManualTargeting("Medium")
 	ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Big") Then
-		Debug("...Big NPC Found, targeting " & TimerDiff($timerInAnomaly))
+		Debug("...Big NPC Found, targeting ")
 		ActionManualTargeting("Big")
 	Else
 		; nothing to target
