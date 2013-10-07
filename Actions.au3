@@ -338,7 +338,8 @@ Func ATankEnable()
 	;Debug("ATankEnable()...")
 	
 	ActivateEveWindow()
-	
+#cs	
+	; armor tank
 	; Ctrl+F1, Ctrl+F2, Ctrl+F3, Ctrl+F4
 	Send("{CTRLDOWN}")
 	RndSleep(500,50)
@@ -353,6 +354,28 @@ Func ATankEnable()
 	Send("{CTRLUP}")
 	RndSleep(500,50)
 	
+	; sensor booster
+	; Alt+F1
+	Send("{ALTDOWN}")
+	RndSleep(500,50)
+	Send("{F1}")
+	RndSleep(500,50)
+	Send("{ALTUP}")
+	RndSleep(500,50)
+#ce	
+	; shield tank
+	; Alt+F1
+	Send("{ALTDOWN}")
+	RndSleep(500,50)
+	Send("{F3}")
+	RndSleep(500,50)
+	Send("{F4}")
+	RndSleep(500,50)
+	Send("{F5}")
+	RndSleep(500,50)
+	Send("{ALTUP}")
+	RndSleep(500,50)
+		
 	;Debug("ATankEnable() done!")
 EndFunc
 
@@ -453,7 +476,19 @@ Func ActionDronesEngage()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
+	
 	Debug("ActionDronesEngage() done!")
+EndFunc
+
+Func AEngageMainWeapon()
+	;Debug("AEngageMainWeapon()...")
+	ActivateEveWindow()	
+	
+	; F1
+	Send("{F1}")
+	RndSleep(500,50)
+	
+	;Debug("AEngageMainWeapon() done!")
 EndFunc
 
 ;------------------------------------------------------------------------------

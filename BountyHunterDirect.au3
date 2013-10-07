@@ -239,9 +239,16 @@ Func ManualTargeting()
 			
 	If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
 		Debug("...Targeted NPC Found... ")
-		If CIsActiveEngagement() = False Then
-			Debug("...Targeted NPC Found... engaging ")
+		If CIsActiveDroneEngagement() = False Then
+			Debug("...Targeted NPC Found... engaging with Drones")
 			ActionDronesEngage()
+		EndIf
+	EndIf
+	
+	If $bIsBigTargeted = True Then
+		If CIsActiveCruiseEngagement() = False Then
+			Debug("...Targeted NPC Found... engaging with Cruise")
+			AEngageMainWeapon()
 		EndIf
 	EndIf
 				

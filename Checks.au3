@@ -148,11 +148,18 @@ Func CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, ByRef $x, ByRef $y)
 	Return IsAnyImageOnDesktop_XY($npc, $x, $y)
 EndFunc
 
-Func CIsActiveEngagement()
+Func CIsActiveDroneEngagement()
 	Local $x, $y
 	
 	ActivateEveWindow()
 	Return IsImageOnDesktop("Images\EngagedBy_Drones.bmp")
+EndFunc
+
+Func CIsActiveCruiseEngagement()
+	Local $x, $y
+	
+	ActivateEveWindow()
+	Return IsImageOnDesktop("Images\EngagedBy_Cruise.bmp")
 EndFunc
 
 Func CIsDroneTakesDamage()
