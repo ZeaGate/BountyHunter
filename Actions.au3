@@ -9,13 +9,6 @@
 ; Action should start with ActivateEveWindow() call
 ;------------------------------------------------------------------------------
 
-
-
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-; Zea: done
 Func AStartEve()
 	;Debug("AStartEve()...")
 	
@@ -51,20 +44,19 @@ Func AStartEve()
 	;Debug("AStartEve() done!")
 EndFunc	
 	
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func DockToStation()
-	Debug("DockToStation()")
-	Die("to review DockToStation() routine")
-	WinActivate ( "EVE" )
+Func ADock()
+	;Debug("ADock()...")
 	
-	OpenPeopleAndPlaces()
+	ActivateEveWindow()
+
+	MoveMouseToLocalHeader()
+	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
 	Local $x, $y
 	Local Const $WaitInSeconds = 15
 	
 	; locate Station Bookmark
+	WaitForImageXY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y)
 	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Station.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Failure Then
 	   Die("Station bookmark not found");
@@ -88,10 +80,6 @@ Func DockToStation()
 	
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-; Zea: done
 Func AUndock()
 	;Debug("AUndock()...")
 	
@@ -108,10 +96,6 @@ Func AUndock()
 	;Debug("AUndock() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-; Zea: done
 Func AShipStop()
 	;Debug("AShipStop()...")
 	
