@@ -162,6 +162,13 @@ Func CIsActiveCruiseEngagement()
 	Return IsImageOnDesktop("Images\EngagedBy_Cruise.bmp")
 EndFunc
 
+Func CIsActiveLargeBeamEngagement()
+	Local $x, $y
+	
+	ActivateEveWindow()
+	Return IsImageOnDesktop("Images\EngagedBy_LargeBeam.bmp")
+EndFunc
+
 Func CIsDroneTakesDamage()
 	Die("CIsDroneTakesDamage() not implemented")
 	Return False

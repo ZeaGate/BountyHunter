@@ -243,9 +243,16 @@ Func ManualTargeting()
 			Debug("...Targeted NPC Found... engaging with Drones")
 			ActionDronesEngage()
 		EndIf
+		
+		; Tachyons for Dominix
+		If $bDominix AND CIsActiveLargeBeamEngagement() = False Then
+			Debug("...Targeted NPC Found... engaging with Tachyons")
+			AEngageMainWeapon()
+		EndIf
 	EndIf
 	
-	If $bIsBigTargeted = True Then
+	; Cruise for Rattlesnake
+	If $bRattlesnake AND ($bIsBigTargeted = True OR $bIsMediumTargeted = True) Then
 		If CIsActiveCruiseEngagement() = False Then
 			Debug("...Targeted NPC Found... engaging with Cruise")
 			AEngageMainWeapon()

@@ -11,6 +11,8 @@
 ;------------------------------------------------------------------------------
 Global $strEveLauncherPath = ""
 Global $strPassword = ""
+Global $bDominix = True
+Global $bRattlesnake = False
 
 ;------------------------------------------------------------------------------ 
 ; Events Declaration
