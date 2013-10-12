@@ -45,7 +45,7 @@ Func AStartEve()
 EndFunc	
 	
 Func ADock()
-	;Debug("ADock()...")
+	Debug("ADock() - routine require testing")
 	
 	ActivateEveWindow()
 
@@ -56,9 +56,7 @@ Func ADock()
 	Local Const $WaitInSeconds = 15
 	
 	; locate Station Bookmark
-	WaitForImage_XY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y)
-	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Station.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
+	If False = WaitForImage_XY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y) Then
 	   Die("Station bookmark not found");
 	EndIf
  
@@ -66,8 +64,7 @@ Func ADock()
 	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 
 	; locate Dock in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_Dock.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
+	If False = WaitForImage_XY("Images\ContextMenu_Dock.bmp", 5, $x, $y) Then
 	   Die("""Dock"" menu entry not found");
 	EndIf
 	
@@ -75,8 +72,8 @@ Func ADock()
 	; move mouse cursor to that bookmark and make a right mouse click for context menu
 	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 	
-	Sleep( RandomizeIt(3000,1000) )
-	ClosePeopleAndPlaces()
+	RndSleep(2000, 300)
+	WindowPeopleAndPlaces($cWindowCommandClose)
 	
 EndFunc
 
