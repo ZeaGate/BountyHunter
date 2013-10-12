@@ -6,9 +6,6 @@
 ;
 ;------------------------------------------------------------------------------
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func Die($message = "")
 	Debug($message)
 	Beep()
@@ -18,17 +15,11 @@ Func Die($message = "")
 	Exit
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func Debug($message = "")
 	ConsoleWrite($message & @CRLF)
 	ToolTip($message, @DesktopWidth/2, @DesktopHeight-20)
 EndFunc
  
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func RandomizeIt($valueToRandomize, $delta)
     Local $r = Random(0, $delta * 2 - 1, 1) - $delta
 	;Debug("RandomizeIt(" & $valueToRandomize & ", " & $delta & "): " & $r)
@@ -36,19 +27,11 @@ Func RandomizeIt($valueToRandomize, $delta)
 	Return $valueToRandomize
 EndFunc 
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 ; Zea: done
 Func RndSleep($delay, $delta)
 	Sleep(RandomizeIt($delay, $delta))
 EndFunc
 
-
-
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 ; Zea: done
 Func ActivateEveWindow()
 	If NOT WinActive("EVE") Then
@@ -57,9 +40,6 @@ Func ActivateEveWindow()
 	EndIf
 EndFunc		
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func MoveMouseToTheParkingSpot()
 	MouseMove(0, 0) ; randomize coords?
 EndFunc
@@ -90,9 +70,6 @@ Func ClickOnLocalHeader()
 	Return False
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 ; Zea: done
 Func IsImageOnDesktop($image)
 	Local $x, $y
@@ -125,11 +102,11 @@ EndFunc
 ; Zea: done
 Func WaitForImage($image, $waitInSeconds)
 	Local $x, $y
-	Return WaitForImageXY($image, $waitInSeconds, $x, $y)
+	Return WaitForImage_XY($image, $waitInSeconds, $x, $y)
 EndFunc
 
 ; Zea: done
-Func WaitForImageXY($image, $waitInSeconds, ByRef $x, ByRef $y)
+Func WaitForImage_XY($image, $waitInSeconds, ByRef $x, ByRef $y)
 	Local $res = _WaitForImageSearch($image, $waitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Failure Then
 		Return False

@@ -8,9 +8,6 @@
 Global Const $cWindowCommandOpen = 0
 Global Const $cWindowCommandClose = 1
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func WindowPeopleAndPlaces($command)
 	Debug("WindowPeopleAndPlaces(" & $command & ")")
 	
@@ -47,9 +44,6 @@ Func WindowPeopleAndPlaces($command)
 	EndIf
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func WindowScanner($command)
 	Debug("WindowScanner(" & $command & ")")
 	
@@ -83,8 +77,6 @@ Func WindowScanner($command)
 		Die("WindowScanner(" & $command & ") failed")
 	EndIf
 EndFunc
-
-
 
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------

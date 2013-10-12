@@ -62,7 +62,7 @@ Func Main()
 		EndIf
 		
 		; deploy sentries
-		ActionLaunchSentryEm()
+		ALaunchSentryEm()
 		
 		Local $timerInAnomaly = TimerInit()
 		
@@ -76,7 +76,7 @@ Func Main()
 			Local $bLocalIsRed = CIsLocalRed()
 			If $bLocalIsRed = True Then
 				Debug("In Anomaly Loop: Red in local!")
-				ActionScoopDrones()
+				AScoopDrones()
 				Evacuation()
 				WaitForClearLocal()
 				ContinueLoop 2
@@ -102,15 +102,12 @@ Func Main()
 		WEnd
 		
 		; scoop drones
-		ActionScoopDrones()
+		AScoopDrones()
 		
 		Debug("Anomaly finished! Time spent: " & TimerDiff($timerInAnomaly))
 	WEnd
 EndFunc
 
-;------------------------------------------------------------------------------
-; Initialize 
-;------------------------------------------------------------------------------
 Func Initialization()
 	; Do we have running Eve Client already?
 	If CIsEveClientRunning() = False Then
@@ -182,7 +179,7 @@ EndFunc
 
 Func TryGetIntoNewAnomaly()
 	; find new anomaly
-	If ActionFindNewAnomaly() = False Then
+	If AFindAnomaly() = False Then
 		Debug("No Anomaly Found...")
 
 		; warp to safe pos
@@ -202,7 +199,7 @@ Func TryGetIntoNewAnomaly()
 		
 	If CIsLocalRed() = True Then
 		Debug("New Task Loop: Red in local!")
-		ActionScoopDrones()
+		AScoopDrones()
 		Evacuation()
 		WaitForClearLocal()
 			
@@ -210,7 +207,7 @@ Func TryGetIntoNewAnomaly()
 	EndIf
 	
 	; check if anomaly is pre-ocupied 
-	ActionActivateOverviewTab("Pilots")
+	AActivateOverviewTab("Pilots")
 	If CIsAnyPilotInOverview() = True Then
 		Debug("Anomaly is occupied!")
 		Evacuation()
@@ -218,7 +215,7 @@ Func TryGetIntoNewAnomaly()
 			
 		Return False
 	EndIf
-	ActionActivateOverviewTab("Npc")
+	AActivateOverviewTab("Npc")
 			
 	Return True	
 EndFunc
@@ -231,17 +228,17 @@ Func ManualTargeting()
 
 	; fix targeting that was done by mistake
 	If $bIsSmallTargeted = True AND $bIsMediumTargeted = True Then
-		ActionManualUnTargeting("Medium")
+		AManualUnTargeting("Medium")
 	EndIf
 	If ($bIsSmallTargeted = True OR $bIsMediumTargeted = True) AND $bIsBigTargeted = True Then
-		ActionManualUnTargeting("Big")
+		AManualUnTargeting("Big")
 	EndIf
 			
 	If $bIsSmallTargeted = True OR $bIsMediumTargeted = True OR $bIsBigTargeted = True Then
 		Debug("...Targeted NPC Found... ")
 		If CIsActiveDroneEngagement() = False Then
 			Debug("...Targeted NPC Found... engaging with Drones")
-			ActionDronesEngage()
+			ADronesEngage()
 		EndIf
 		
 		; Tachyons for Dominix
@@ -261,13 +258,13 @@ Func ManualTargeting()
 				
 	If CIsSpecificNotTargetedNpcInOverview("Small") Then
 		Debug("...Small NPC Found, targeting ")
-		ActionManualTargeting("Small")
+		AManualTargeting("Small")
 	ElseIf $bIsSmallTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Medium") Then
 		Debug("...Medium NPC Found, targeting ")
-		ActionManualTargeting("Medium")
+		AManualTargeting("Medium")
 	ElseIf $bIsSmallTargeted = False AND $bIsMediumTargeted = False AND CIsSpecificNotTargetedNpcInOverview("Big") Then
 		Debug("...Big NPC Found, targeting ")
-		ActionManualTargeting("Big")
+		AManualTargeting("Big")
 	Else
 		; nothing to target
 	EndIf
@@ -291,7 +288,7 @@ Func Evacuation()
 	Debug("Evacuation()...")
 	
 	If $bAtSafePos = False Then
-		ActionWarpToSafePos()
+		AWarpToSafePos()
 		AWaitForWarpFinished(0)
 		$bAtSafePos = True
 	EndIf

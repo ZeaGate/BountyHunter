@@ -39,7 +39,7 @@ Func CIsOnPos()
 
 	; locate Station Bookmark
 	Local $x, $y
-	If WaitForImageXY("Images\PeopleAndPlaces_SafePos.bmp", 5, $x, $y) = False Then
+	If WaitForImage_XY("Images\PeopleAndPlaces_SafePos.bmp", 5, $x, $y) = False Then
 		Die("SafePos bookmark not found");
 	EndIf
  

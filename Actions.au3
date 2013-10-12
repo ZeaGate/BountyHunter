@@ -20,7 +20,7 @@ Func AStartEve()
 	
 	; wait for Login button
 	Local $x, $y
-	If WaitForImageXY("Images\Launcher_LoginButton.bmp", 60, $x, $y) = False Then
+	If WaitForImage_XY("Images\Launcher_LoginButton.bmp", 60, $x, $y) = False Then
 		Die("Login Failed: Launcher window not found");
 	EndIf
 	
@@ -33,7 +33,7 @@ Func AStartEve()
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,10), 1, RandomizeIt(20,5) )
 	
 	; wait for Select Character window
-	If WaitForImageXY("Images\SelectCharacter_EnterGame.bmp", 120, $x, $y) = False Then
+	If WaitForImage_XY("Images\SelectCharacter_EnterGame.bmp", 120, $x, $y) = False Then
 		Die("Login Failed: Select Character window not found");
 	EndIf
 	
@@ -56,7 +56,7 @@ Func ADock()
 	Local Const $WaitInSeconds = 15
 	
 	; locate Station Bookmark
-	WaitForImageXY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y)
+	WaitForImage_XY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y)
 	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Station.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Failure Then
 	   Die("Station bookmark not found");
@@ -112,14 +112,10 @@ Func AShipStop()
 	;Debug("AShipStop() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionWarpToSafePos()
-	Debug("ActionWarpToSafePos()...")
+Func AWarpToSafePos()
+	Debug("AWarpToSafePos()...")
 	ActivateEveWindow()
 	
-	;ActionScoopDrones()
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
@@ -161,14 +157,11 @@ Func ActionWarpToSafePos()
 	Sleep( RandomizeIt(3000,1000) )
 	WindowPeopleAndPlaces($cWindowCommandClose)
 	
-	Debug("ActionWarpToSafePos() done")
+	Debug("AWarpToSafePos() done")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionFindNewAnomaly()
-	Debug("ActionFindNewAnomaly()...")
+Func AFindAnomaly()
+	Debug("AFindAnomaly()...")
 	ActivateEveWindow()
 
 	MoveMouseToLocalHeader()
@@ -260,7 +253,7 @@ Func ActionFindNewAnomaly()
 	RndSleep(3000,1000)
 	MoveMouseToLocalHeader()
 	WindowScanner($cWindowCommandClose)
-	Debug("ActionFindNewAnomaly() done!")
+	Debug("AFindAnomaly() done!")
 	
 	Return True
 	
@@ -315,9 +308,6 @@ Func AWaitForWarpFinished($minimalWaitTime = 0)
 	Debug("AWaitForWarpFinished() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func ATankEnable()
 	;Debug("ATankEnable()...")
 	
@@ -367,9 +357,6 @@ Func ATankEnable()
 	;Debug("ATankEnable() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
 Func APrepareDroneWindow()
 	;Debug("APrepareDroneWindow()...")
 	
@@ -416,11 +403,8 @@ Func APrepareDroneWindow()
 	;Debug("APrepareDroneWindow() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionLaunchSentryEm()
-	Debug("ActionLaunchSentryEm()...")
+Func ALaunchSentryEm()
+	Debug("ALaunchSentryEm()...")
 	ActivateEveWindow()	
 
 	Local $x, $y
@@ -443,14 +427,11 @@ Func ActionLaunchSentryEm()
  
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
 	RndSleep(500,50)
-	Debug("ActionLaunchSentryEm() done!")
+	Debug("ALaunchSentryEm() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionDronesEngage()
-	Debug("ActionDronesEngage()...")
+Func ADronesEngage()
+	Debug("ADronesEngage()...")
 	ActivateEveWindow()	
 	
 	; Ctrl+Shift+A
@@ -465,7 +446,7 @@ Func ActionDronesEngage()
 	Send("{CTRLUP}")
 	RndSleep(500,50)
 	
-	Debug("ActionDronesEngage() done!")
+	Debug("ADronesEngage() done!")
 EndFunc
 
 Func AEngageMainWeapon()
@@ -479,11 +460,8 @@ Func AEngageMainWeapon()
 	;Debug("AEngageMainWeapon() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionScoopDrones()
-	Debug("ActionScoopDrones()...")
+Func AScoopDrones()
+	Debug("AScoopDrones()...")
 	ActivateEveWindow()	
     
 	; Ctrl+Shift+D
@@ -497,14 +475,11 @@ Func ActionScoopDrones()
 	RndSleep(500,50)
 	Send("{CTRLUP}")
 	RndSleep(500,50)
-	Debug("ActionScoopDrones() done!")
+	Debug("AScoopDrones() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionActivateOverviewTab($tabName)
-	;Debug("ActionActivateOverviewTab()...")
+Func AActivateOverviewTab($tabName)
+	;Debug("AActivateOverviewTab()...")
 	ActivateEveWindow()
 	
 	; I suppose tab is inactive
@@ -515,17 +490,14 @@ Func ActionActivateOverviewTab($tabName)
 	
 	; check if tab is active now
 	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Active.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) = $ImageSearch_Failure Then
-		Die("ActionActivateOverviewTab(): " & $tabName & " not found!")
+		Die("AActivateOverviewTab(): " & $tabName & " not found!")
 	EndIf
 	
-	;Debug("ActionActivateOverviewTab() done!")
+	;Debug("AActivateOverviewTab() done!")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionManualTargeting($targetTemplate)
-	Debug("ActionManualTargeting()...")
+Func AManualTargeting($targetTemplate)
+	Debug("AManualTargeting()...")
 	
 	Local $x, $y
 	If CIsSpecificNotTargetedNpcInOverview_XY($targetTemplate, $x, $y) Then
@@ -544,14 +516,11 @@ Func ActionManualTargeting($targetTemplate)
 		MouseMove(RandomizeIt($x,4), RandomizeIt($y+400,5), RandomizeIt(10,5) )
 	EndIf
 	
-	Debug("ActionManualTargeting() done")
+	Debug("AManualTargeting() done")
 EndFunc
 
-;------------------------------------------------------------------------------
-;
-;------------------------------------------------------------------------------
-Func ActionManualUnTargeting($targetTemplate)
-	Debug("ActionManualUnTargeting(" & $targetTemplate & ")...")
+Func AManualUnTargeting($targetTemplate)
+	Debug("AManualUnTargeting(" & $targetTemplate & ")...")
 	
 	Local $x, $y
 	
@@ -575,7 +544,7 @@ Func ActionManualUnTargeting($targetTemplate)
 		MouseMove(RandomizeIt($x,4), RandomizeIt($y+400,5), RandomizeIt(10,5) )
 	EndIf
 	
-	Debug("ActionManualUnTargeting() done")
+	Debug("AManualUnTargeting() done")
 EndFunc
 
 ;------------------------------------------------------------------------------
