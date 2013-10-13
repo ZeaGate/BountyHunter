@@ -64,7 +64,7 @@ Global Const $imageConfirmSpace = "Images\WindowHeader_Drones.bmp"
 ; 
 ;------------------------------------------------------------------------------
 Global Const $cISTolerance = 16
-Global Const $cMouseSpeedBase = 4
+Global Const $cMouseSpeedBase = 8
 Global COnst $cMouseSpeedDelta = 2
 
 ;------------------------------------------------------------------------------

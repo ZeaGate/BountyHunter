@@ -39,7 +39,6 @@
 </node>
 </node>
 <node CREATED="1380915088972" ID="ID_68866088" MODIFIED="1380915756786" POSITION="right" TEXT="To Do">
-<node CREATED="1380915253344" ID="ID_1640224857" MODIFIED="1380915336040" TEXT="&quot;Space&quot; as valid starting point (in addition to &quot;No Client&quot; and &quot;Station&quot;)"/>
 <node CREATED="1380915356776" ID="ID_1800326713" MODIFIED="1380915390041" TEXT="Instead of simple Die - loop of Beeps and close Eve Client"/>
 <node CREATED="1380915403102" ID="ID_856454170" MODIFIED="1380916659957" TEXT="To cleanup and review all code">
 <node CREATED="1380915762409" ID="ID_907999199" MODIFIED="1380915769037" TEXT="review printouts">
@@ -61,11 +60,9 @@
 <node CREATED="1380915637738" ID="ID_809995606" MODIFIED="1380915689481" TEXT="Config file">
 <node CREATED="1380915694751" ID="ID_37052168" MODIFIED="1380915698305" TEXT="Tank, Engage commands"/>
 </node>
-<node CREATED="1380915720745" ID="ID_1393982167" MODIFIED="1380915741897" TEXT="Logging to popup AND console/file"/>
 <node CREATED="1380916029751" ID="ID_1914279012" MODIFIED="1380916048856" TEXT="No anomalies - unignore all"/>
 <node CREATED="1380916083761" ID="ID_1444659690" MODIFIED="1380916143639" TEXT="Check drones recieving damage. Consider docking that drone. Or have 2 pack, so can dock whole pack and launch another one"/>
 <node CREATED="1380916153742" ID="ID_1785666474" MODIFIED="1380916163387" TEXT="Check ship recieving damage"/>
-<node CREATED="1380928749472" ID="ID_1627626699" MODIFIED="1380928759878" TEXT="Enable SensorBooster"/>
 </node>
 </node>
 </map>

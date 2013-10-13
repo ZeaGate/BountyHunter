@@ -33,13 +33,7 @@ Func AStartEve()
 	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,10), 1, RndMouseSpeed() )
 	
 	; wait for Select Character window
-	If WaitForImage_XY("Images\SelectCharacter_EnterGame.bmp", 120, $x, $y) = False Then
-		Die("Login Failed: Select Character window not found");
-	EndIf
-	
-	; click on button
-	RndSleep(2000, 300)
-	MouseClick("left", RandomizeIt($x,10), RandomizeIt($y,10), 1, RndMouseSpeed() )
+	LocateAndClick("Images\SelectCharacter_EnterGame.bmp", 120, "left", 2000)
 	
 	;Debug("AStartEve() done!")
 EndFunc	
@@ -52,25 +46,8 @@ Func ADock()
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
-	Local $x, $y
-	Local Const $WaitInSeconds = 15
-	
-	; locate Station Bookmark
-	If False = WaitForImage_XY("Images\PeopleAndPlaces_Station.bmp", 5, $x, $y) Then
-		Die("Station bookmark not found");
-	EndIf
- 
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
-
-	; locate Dock in context menu
-	If False = WaitForImage_XY("Images\ContextMenu_Dock.bmp", 5, $x, $y) Then
-		Die("""Dock"" menu entry not found");
-	EndIf
-	
-	; select Dock from context menu
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	LocateAndClick("Images\PeopleAndPlaces_Station.bmp", 5, "right")
+	LocateAndClick("Images\ContextMenu_Dock.bmp", 5, "left")
 	
 	RndSleep(2000, 300)
 	WindowPeopleAndPlaces($cWindowCommandClose)
@@ -116,42 +93,24 @@ Func AWarpToSafePos()
 	MoveMouseToLocalHeader()
 	WindowPeopleAndPlaces($cWindowCommandOpen)
 	
-	Local $x, $y
-	Local Const $WaitInSeconds = 5
-	
-	; locate Station Bookmark
-	local $res = _WaitForImageSearch("Images\PeopleAndPlaces_SafePos.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("Safe Pos bookmark not found");
-	EndIf
- 
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
-
+	; locate SafePos Bookmark
+	LocateAndClick("Images\PeopleAndPlaces_SafePos.bmp", 5, "right")
 	; locate Warp to location... in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_WarpToLocation.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("""Warp to location..."" menu entry not found");
-	EndIf
-	
-	; select Warp to location from context menu
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	Local $x, $y
+	LocateAndClick_XY("Images\ContextMenu_WarpToLocation.bmp", 5, "left", $x, $y)
 	
 	; save Y coord for next step 
 	Local $oldY = $y
 	
 	; locate Within 10km in context menu
-	$res = _WaitForImageSearch("Images\ContextMenu_Within10km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("""Within 10km"" menu entry not found");
+	If WaitForImage_XY("Images\ContextMenu_Within10km.bmp", 5, $x, $y) = False Then
+		Die("""Within 10km"" menu entry not found")
 	EndIf
-	
-	; select Within 10km from context menu
-	; move mouse cursor to that bookmark and make a right mouse click for context menu
+
 	MouseMove(RandomizeIt($x,5), RandomizeIt($oldY,2), RandomizeIt(20,5))
 	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
 	
-	Sleep( RandomizeIt(3000,1000) )
+	RndSleep(2000, 300)
 	WindowPeopleAndPlaces($cWindowCommandClose)
 	
 	Debug("AWarpToSafePos() done")
@@ -164,9 +123,6 @@ Func AFindAnomaly()
 	MoveMouseToLocalHeader()
 	WindowScanner($cWindowCommandOpen)
 	
-	Local $anomaly_x, $anomaly_y
-	Local Const $WaitInSeconds = 5
-	
 	; prepare array with anomaly names
 	Local $anomalies[3] ; size + munber of images
 	$anomalies[0] = 2 ; number of images
@@ -174,10 +130,10 @@ Func AFindAnomaly()
 	$anomalies[2] = "Images\Scanner_SanshaForsakenRallyPoint.bmp"
 	
 	; locate anomaly
-	local $res = _WaitForImagesSearch($anomalies, $WaitInSeconds, $ImageSearch_ResultPosition_Center, $anomaly_x, $anomaly_y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
+	Local $anomaly_x, $anomaly_y
+	If False = WaitForImages_XY($anomalies, 5, $anomaly_x, $anomaly_y) Then
+		; todo: unignore all anomalies
 		WindowScanner($cWindowCommandClose)
-		; Die("No anomaly found");
 		Return False
 	EndIf
  
@@ -186,23 +142,12 @@ Func AFindAnomaly()
 
 	; locate Warp to location... in context menu
 	Local $warpTo_x, $warpTo_y
-	$res = _WaitForImageSearch("Images\ContextMenu_WarpToWithin.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $warpTo_x, $warpTo_y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		;ClickOnLocalHeader()
-		;WindowScanner($cWindowCommandClose)
-		Die("""Warp to location..."" menu entry not found");
-	EndIf
-	
-	; select Warp to location from context menu
-	MouseClick("left", RandomizeIt($warpTo_x,5), RandomizeIt($warpTo_y,2), 1, RndMouseSpeed() )
+	LocateAndClick_XY("Images\ContextMenu_WarpToWithin.bmp", 5, "left", $warpTo_x, $warpTo_y)
 	
 	; locate Within 70km in context menu
 	Local $x, $y
-	$res = _WaitForImageSearch("Images\ContextMenu_Within70km.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		;ClickOnLocalHeader()
-		;WindowScanner($cWindowCommandClose)
-		Die("""Within 70km"" menu entry not found");
+	If WaitForImage_XY("Images\ContextMenu_Within70km.bmp", 5, $x, $y) = False Then
+		Die("""Within 70km"" menu entry not found")
 	EndIf
 	
 	; select Within 70km from context menu
@@ -210,21 +155,18 @@ Func AFindAnomaly()
 	MouseMove(RandomizeIt($x,5), RandomizeIt($warpTo_y,2), RndMouseSpeed())
 	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
 	
+	
 	; Close Anomaly Info Window
 	RndSleep(2000,500)
 	Send("{ENTER}")
+	
 	
 	; save bookmark
 	RndSleep(2000,500)
 	; move mouse cursor to found anomaly and make a right mouse click for context menu
 	MouseClick("right", RandomizeIt($anomaly_x,20), RandomizeIt($anomaly_y,2), 1, RndMouseSpeed() )
 	
-	$res = _WaitForImageSearch("Images\ContextMenu_SaveLocation.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("""Save Location"" menu entry not found");
-	EndIf
-	
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	LocateAndClick("Images\ContextMenu_SaveLocation.bmp", 5, "left")
 	
 	; specify bookmark name
 	RndSleep(2000,500)
@@ -238,14 +180,7 @@ Func AFindAnomaly()
 	; move mouse cursor to found anomaly and make a right mouse click for context menu
 	MouseClick("right", RandomizeIt($anomaly_x,20), RandomizeIt($anomaly_y,2), 1, RndMouseSpeed() )
 	
-	$res = _WaitForImageSearch("Images\ContextMenu_IgnoreResult.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		;ClickOnLocalHeader()
-		;WindowScanner($cWindowCommandClose)
-		Die("""Ignore Result"" menu entry not found");
-	EndIf
-	
-	MouseClick("left", RandomizeIt($x,5), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	LocateAndClick("Images\ContextMenu_IgnoreResult.bmp", 5, "left")
 	
 	RndSleep(3000,1000)
 	MoveMouseToLocalHeader()
@@ -253,8 +188,6 @@ Func AFindAnomaly()
 	Debug("AFindAnomaly() done!")
 	
 	Return True
-	
-	;WaitForShipStoppingToComplete()
 EndFunc   
 
 Func AWaitForWarpFinished($minimalWaitTime = 0)
@@ -267,10 +200,7 @@ Func AWaitForWarpFinished($minimalWaitTime = 0)
 	
 	; locate Station Bookmark
 	Local $bm_x, $bm_y
-	Local Const $WaitInSeconds = 5
-	Local $res = _WaitForImageSearch("Images\PeopleAndPlaces_Dummy.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $bm_x, $bm_y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		;WindowPeopleAndPlaces($cWindowCommandClose)
+	If WaitForImage_XY("Images\PeopleAndPlaces_Dummy.bmp", 5, $bm_x, $bm_y) = False Then
 		Die("Dummy bookmark not found");
 	EndIf
  
@@ -362,25 +292,18 @@ Func APrepareDroneWindow()
 	MoveMouseToTheParkingSpot()
 	
 	Local $x, $y
-	;Local Const $WaitInSeconds = 5
-	
-	; locate 
-	Local $res = _ImageSearch("Images\Drones_DronesInBayClosed.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Success Then
+
+	If IsImageOnDesktop_XY("Images\Drones_DronesInBayClosed.bmp", $x, $y) Then
 		MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
 		RndSleep(1000,100)
 	EndIf
 	
-	; locate 
-	$res = _ImageSearch("Images\Drones_DronesInLocalSpaceClosed.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) ; note tolerance here
-	If $res = $ImageSearch_Success Then
+	If IsImageOnDesktop_XY("Images\Drones_DronesInLocalSpaceClosed.bmp", $x, $y) Then
 		MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
 		RndSleep(1000,100)
 	EndIf
 	
-	; locate 
-	$res = _ImageSearch("Images\Drones_SentryEmClosed.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Success Then
+	If IsImageOnDesktop_XY("Images\Drones_SentryEmClosed.bmp", $x, $y) Then
 		MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
 		RndSleep(1000,100)
 	EndIf
@@ -404,26 +327,11 @@ Func ALaunchSentryEm()
 	Debug("ALaunchSentryEm()...")
 	ActivateEveWindow()	
 
-	Local $x, $y
-	Local Const $WaitInSeconds = 5
-	
-	; locate 
-	Local $res = _WaitForImageSearch("Images\Drones_SentryEmOpen.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("Drones_SentryEmOpen not found");
-	EndIf
- 
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	LocateAndClick("Images\Drones_SentryEmOpen.bmp", 5, "right")
 	RndSleep(500,50)
-	
-	; locate 
-	$res = _WaitForImageSearch("Images\ContextMenu_LaunchDrones.bmp", $WaitInSeconds, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
-	If $res = $ImageSearch_Failure Then
-		Die("ContextMenu_LaunchDrones not found");
-	EndIf
- 
-	MouseClick("left", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
+	LocateAndClick("Images\ContextMenu_LaunchDrones.bmp", 5, "left")
 	RndSleep(500,50)
+
 	Debug("ALaunchSentryEm() done!")
 EndFunc
 
@@ -480,13 +388,12 @@ Func AActivateOverviewTab($tabName)
 	ActivateEveWindow()
 	
 	; I suppose tab is inactive
-	Local $x, $y
-	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) = $ImageSearch_Success Then
+	If WaitForImage("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5) Then
 		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() )
 	EndIf
 	
 	; check if tab is active now
-	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Active.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) = $ImageSearch_Failure Then
+	If WaitForImage("Images\OverviewTab_" & $tabName & "Active.bmp", 5) Then
 		Die("AActivateOverviewTab(): " & $tabName & " not found!")
 	EndIf
 	
