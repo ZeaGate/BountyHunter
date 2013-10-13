@@ -482,7 +482,7 @@ Func AActivateOverviewTab($tabName)
 	; I suppose tab is inactive
 	Local $x, $y
 	If _WaitForImageSearch("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5, $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance ) = $ImageSearch_Success Then
-		MouseClick("left", $x, $y, 1, RndMouseSpeed() )
+		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() )
 	EndIf
 	
 	; check if tab is active now
@@ -502,7 +502,7 @@ Func AManualTargeting($targetTemplate)
 		; let's target
 		Send("{CTRLDOWN}")
 		RndSleep(500,50)
-		MouseClick("left", $x, $y, 1, RndMouseSpeed() )
+		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() )
 		RndSleep(500,50)
 		Send("{CTRLUP}")
 		RndSleep(500,50)			
@@ -528,7 +528,7 @@ Func AManualUnTargeting($targetTemplate)
 		RndSleep(500,50)
 		Send("{SHIFTDOWN}")
 		RndSleep(500,50)
-		MouseClick("left", $x, $y, 1, RndMouseSpeed() )
+		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() )
 		RndSleep(500,50)
 		Send("{SHIFTUP}")
 		RndSleep(500,50)

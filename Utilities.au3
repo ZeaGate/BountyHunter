@@ -45,7 +45,7 @@ Func ActivateEveWindow()
 EndFunc		
 
 Func MoveMouseToTheParkingSpot()
-	MouseMove(0, 0, RndMouseSpeed() ) ; randomize coords?
+	MouseMove(RandomizeIt(2,2), RandomizeIt(2,2), RndMouseSpeed() ) 
 EndFunc
 
 Func MoveMouseToLocalHeader()
@@ -53,7 +53,7 @@ Func MoveMouseToLocalHeader()
 	
 	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Success Then
-		MouseMove($x, $y, RndMouseSpeed() ) ; randomize coords?
+		MouseMove(RandomizeIt($x,2), RandomizeIt($y,2), RndMouseSpeed() ) 
 	Else
 		Die("MoveMouseToLocalHeader(): " &  "Images\WindowHeader_Local.bmp" & " not found")
 	EndIf
@@ -66,7 +66,7 @@ Func ClickOnLocalHeader()
 	
 	Local $res = _ImageSearch("Images\WindowHeader_Local.bmp", $ImageSearch_ResultPosition_Center, $x, $y, $cISTolerance )
 	If $res = $ImageSearch_Success Then
-		MouseClick("left", $x, $y, 1, RndMouseSpeed() ) ; randomize coords?
+		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() ) 
 	Else
 		Die("ClickOnLocalHeader(): " &  "Images\WindowHeader_Local.bmp" & " not found")
 	EndIf
