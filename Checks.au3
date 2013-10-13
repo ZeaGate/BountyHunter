@@ -44,7 +44,7 @@ Func CIsOnPos()
 	EndIf
  
 	; move mouse cursor to that bookmark and make a right mouse click for context menu
-	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RandomizeIt(20,5) )
+	MouseClick("right", RandomizeIt($x,20), RandomizeIt($y,2), 1, RndMouseSpeed() )
 
 	; locate "Warp to location" in context menu
 	Local $ret = (WaitForImage("Images\ContextMenu_WarpToLocation.bmp", 5) = False)
