@@ -388,12 +388,13 @@ Func AActivateOverviewTab($tabName)
 	ActivateEveWindow()
 	
 	; I suppose tab is inactive
-	If WaitForImage("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5) Then
+	Local $x, $y
+	If WaitForImage_XY("Images\OverviewTab_" & $tabName & "Inactive.bmp", 5, $x, $y) Then
 		MouseClick("left", RandomizeIt($x,2), RandomizeIt($y,2), 1, RndMouseSpeed() )
 	EndIf
 	
 	; check if tab is active now
-	If WaitForImage("Images\OverviewTab_" & $tabName & "Active.bmp", 5) Then
+	If False = WaitForImage("Images\OverviewTab_" & $tabName & "Active.bmp", 5) Then
 		Die("AActivateOverviewTab(): " & $tabName & " not found!")
 	EndIf
 	
