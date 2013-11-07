@@ -170,7 +170,10 @@ Func AFindAnomaly()
 	
 	; specify bookmark name
 	RndSleep(2000,500)
-	Send("BH.zAnomaly")
+	Local $timeStamp = "z " & @YEAR & "-" & @MON & "-" & @MDAY & " " & @HOUR & ":" & @MIN & " "
+	Send("{HOME}")
+	RndSleep(500,50)
+	Send($timeStamp)
 	RndSleep(500,50)
 	Send("{ENTER}")
 	
