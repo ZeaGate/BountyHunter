@@ -214,6 +214,7 @@ Func AWaitForWarpFinished($minimalWaitTime = 0)
 	Local Const $iterations = 90
 	For $i = 0 To $iterations
 		Debug("iteration: " & $i)
+		ActivateEveWindow()
 		
 		; move mouse cursor to that bookmark and make a right mouse click for context menu
 		MouseClick("right", $bm_x, $bm_y, 1, RndMouseSpeed() )

@@ -42,6 +42,8 @@ Func WindowPeopleAndPlaces($command)
 	If $result = False Then
 		Die("WindowPeopleAndPlaces(" & $command & ") failed")
 	EndIf
+	 
+	Sleep(1000) 
 EndFunc
 
 Func WindowScanner($command)
