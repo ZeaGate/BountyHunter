@@ -44,6 +44,8 @@ Global $bAtSafePos = False
 
 ; placeholder for small debug routines 
 Main()
+;InnerLoop()
+;Evacuation()
 Exit
 
 Func Main()
@@ -64,47 +66,7 @@ Func Main()
 		; deploy sentries
 		ALaunchSentryEm()
 		
-		Local $timerInAnomaly = TimerInit()
-		
-		; "In Anomaly" Loop
-		Local $bNpcPresent = True
-		Local $npcPresentTimer = 0
-		
-		While $bNpcPresent
-			Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
-			
-			Local $bLocalIsRed = CIsLocalRed()
-			If $bLocalIsRed = True Then
-				Debug("In Anomaly Loop: Red in local!")
-				AScoopDrones()
-				Evacuation()
-				WaitForClearLocal()
-				ContinueLoop 2
-			EndIf
-			
-			ManualTargeting()
-			
-			; make sure that there is no NPC in site
-			If CIsAnyNpcInOverview() = False Then
-				If $npcPresentTimer = 0 Then
-					; first time? - setup a timer
-					$npcPresentTimer = TimerInit()
-				EndIf
-				
-				Local $noNpcDiff = TimerDiff($npcPresentTimer)
-				Debug("No NPC Timer: " & $noNpcDiff)
-				If $noNpcDiff > 30000 Then
-					$bNpcPresent = False
-				EndIf
-			Else
-				$npcPresentTimer = 0
-			EndIf
-		WEnd
-		
-		; scoop drones
-		AScoopDrones()
-		
-		Debug("Anomaly finished! Time spent: " & TimerDiff($timerInAnomaly))
+		InnerLoop()
 	WEnd
 EndFunc
 
@@ -218,6 +180,52 @@ Func TryGetIntoNewAnomaly()
 	AActivateOverviewTab("Npc")
 			
 	Return True	
+EndFunc
+
+Func InnerLoop()
+	ActivateEveWindow()
+	
+	Local $timerInAnomaly = TimerInit()
+		
+	; "In Anomaly" Loop
+	Local $bNpcPresent = True
+	Local $npcPresentTimer = 0
+		
+	While $bNpcPresent
+		Debug("In Anomaly Loop: iteration started (" & TimerDiff($timerInAnomaly) & ")")
+			
+		Local $bLocalIsRed = CIsLocalRed()
+		If $bLocalIsRed = True Then
+			Debug("In Anomaly Loop: Red in local!")
+			AScoopDrones()
+			Evacuation()
+			WaitForClearLocal()
+			ContinueLoop 2
+		EndIf
+			
+		ManualTargeting()
+			
+		; make sure that there is no NPC in site
+		If CIsAnyNpcInOverview() = False Then
+			If $npcPresentTimer = 0 Then
+				; first time? - setup a timer
+				$npcPresentTimer = TimerInit()
+			EndIf
+				
+			Local $noNpcDiff = TimerDiff($npcPresentTimer)
+			Debug("No NPC Timer: " & $noNpcDiff)
+			If $noNpcDiff > 30000 Then
+				$bNpcPresent = False
+			EndIf
+		Else
+			$npcPresentTimer = 0
+		EndIf
+	WEnd
+		
+	; scoop drones
+	AScoopDrones()
+		
+	Debug("Anomaly finished! Time spent: " & TimerDiff($timerInAnomaly))
 EndFunc
 
 Func ManualTargeting()
