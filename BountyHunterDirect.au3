@@ -44,6 +44,8 @@ Global $bAtSafePos = False
 
 ; placeholder for small debug routines 
 Main()
+;TestImages()
+
 ;InnerLoop()
 ;Evacuation()
 Exit
@@ -302,6 +304,31 @@ Func Evacuation()
 	EndIf
 	
 	Debug("Evacuation() done!")
+EndFunc
+ 
+Func TestImages()
+	ActivateEveWindow()
+	
+	Local $droneWindow[7] ; size + munber of images
+	$droneWindow[0] = 6 ; number of images
+	$droneWindow[1] = "Images\Drones_DronesInBayClosed.bmp"
+	$droneWindow[2] = "Images\Drones_DronesInBayOpen.bmp"
+	$droneWindow[3] = "Images\Drones_DronesInLocalSpaceClosed.bmp"
+	$droneWindow[4] = "Images\Drones_DronesInLocalSpaceOpen.bmp"
+	$droneWindow[5] = "Images\Drones_SentryEmClosed.bmp"
+	$droneWindow[6] = "Images\Drones_SentryEmOpen.bmp"
+	
+	TestImages_impl($droneWindow)
+EndFunc
+
+Func TestImages_impl($images)
+	For $i = 1 to $images[0]
+		If IsImageOnDesktop($images[$i]) Then
+			Debug("[ GOOD ]" & $images[$i])
+		Else
+			Debug("[ BAD  ]" & $images[$i])
+		EndIf
+    Next
 EndFunc
 
 ;------------------------------------------------------------------------------
