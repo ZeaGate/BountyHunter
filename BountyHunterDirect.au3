@@ -202,7 +202,7 @@ Func InnerLoop()
 			AScoopDrones()
 			Evacuation()
 			WaitForClearLocal()
-			ContinueLoop 2
+			Return
 		EndIf
 			
 		ManualTargeting()
